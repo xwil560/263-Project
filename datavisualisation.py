@@ -1,64 +1,52 @@
 from matplotlib import pyplot as plt
+
 import numpy as np
 import os
-oil=True
-water=True
-steam=True
-temp=True
-pressure=True
-#plotting oil production rate 
-if oil:
-    os.chdir("data")
-    f, ax1 = plt.subplots(1, 1)
-    time=np.genfromtxt('tr_oil.txt',skip_header=True,delimiter=",",usecols=0)
-    vol=np.genfromtxt('tr_oil.txt',skip_header=True,delimiter=",",usecols=1)
-    ax1.plot(time,vol,'-')
-    ax1.set_title('Oil production rate')
-    ax1.set_xlabel('Time (days)')
-    ax1.set_ylabel('Production rate (m^3/day)')
-    os.chdir("..")
-    plt.savefig('oil.png')
-if water:
-    os.chdir("data")
-    f, ax1 = plt.subplots(1, 1)
-    time=np.genfromtxt('tr_water.txt',skip_header=True,delimiter=",",usecols=0)
-    vol=np.genfromtxt('tr_water.txt',skip_header=True,delimiter=",",usecols=1)
-    ax1.plot(time,vol,'-')
-    ax1.set_title('Water production rate')
-    ax1.set_xlabel('Time (days)')
-    ax1.set_ylabel('Production rate (m^3/day)')
-    os.chdir("..")
-    plt.savefig('water.png')
-if steam:
-    os.chdir("data")
-    f, ax1 = plt.subplots(1, 1)
-    time=np.genfromtxt('tr_steam.txt',skip_header=True,delimiter=",",usecols=0)
-    mass=np.genfromtxt('tr_steam.txt',skip_header=True,delimiter=",",usecols=1)
-    ax1.plot(time,mass,'-')
-    ax1.set_title('Steam injection rate')
-    ax1.set_xlabel('Time (days)')
-    ax1.set_ylabel('Injection rate (tonnes/day)')
-    os.chdir("..")
-    plt.savefig('steam.png')
-if temp:
-    os.chdir("data")
-    f, ax1 = plt.subplots(1, 1)
-    time=np.genfromtxt('tr_T.txt',skip_header=True,delimiter=",",usecols=0)
-    temp=np.genfromtxt('tr_T.txt',skip_header=True,delimiter=",",usecols=1)
-    ax1.plot(time,temp,'-')
-    ax1.set_title('Temperature at 350m into the well')
-    ax1.set_xlabel('Time (days)')
-    ax1.set_ylabel('Temperature (degree C)')
-    os.chdir("..")
-    plt.savefig('temp.png')
-if pressure:
-    os.chdir("data")
-    f, ax1 = plt.subplots(1, 1)
-    time=np.genfromtxt('tr_p.txt',skip_header=True,delimiter=",",usecols=0)
-    temp=np.genfromtxt('tr_p.txt',skip_header=True,delimiter=",",usecols=1)
-    ax1.plot(time,temp,'-')
-    ax1.set_title('Pressure at 350m into the well')
-    ax1.set_xlabel('Time (days)')
-    ax1.set_ylabel('Pressure (kPa)')
-    os.chdir("..")
-    plt.savefig('pressure.png')
+params = {'mathtext.default': 'regular' }          
+plt.rcParams.update(params)
+os.chdir("data")
+f, ax1 = plt.subplots(1, 1)
+time1=np.genfromtxt('tr_oil.txt',skip_header=True,delimiter=",",usecols=0)
+vol1=np.genfromtxt('tr_oil.txt',skip_header=True,delimiter=",",usecols=1)
+ax1.plot(time1,vol1,'-',label="Oil extraction rate ($m^{3}$/days)")
+
+os.chdir("..")
+
+
+os.chdir("data")
+
+time2=np.genfromtxt('tr_water.txt',skip_header=True,delimiter=",",usecols=0)
+vol2=np.genfromtxt('tr_water.txt',skip_header=True,delimiter=",",usecols=1)
+ax1.plot(time2,vol2,'-',label="Water extraction rate ($m^{3}$/days)")
+
+os.chdir("..")
+
+
+os.chdir("data")
+
+time3=np.genfromtxt('tr_steam.txt',skip_header=True,delimiter=",",usecols=0)
+mass3=np.genfromtxt('tr_steam.txt',skip_header=True,delimiter=",",usecols=1)
+ax1.plot(time3,mass3,'-',label="Steam injection rate (tonnes/day)")
+
+os.chdir("..")
+
+
+os.chdir("data")
+
+time4=np.genfromtxt('tr_T.txt',skip_header=True,delimiter=",",usecols=0)
+temp=np.genfromtxt('tr_T.txt',skip_header=True,delimiter=",",usecols=1)
+ax1.plot(time4,temp,'-',label="Temperature at 350m ($^{0}C$)")
+
+os.chdir("..")
+
+
+os.chdir("data")
+
+time=np.genfromtxt('tr_p.txt',skip_header=True,delimiter=",",usecols=0)
+pressure=np.genfromtxt('tr_p.txt',skip_header=True,delimiter=",",usecols=1)
+ax1.plot(time,pressure,'-',label="Pressure at 350m (kPa)")
+plt.title("Data visulisation")
+plt.xlabel("Time (days)")
+plt.legend(bbox_to_anchor=(1.05,1),fontsize='xx-small')
+os.chdir("..")
+plt.savefig('data.png')
