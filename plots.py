@@ -190,4 +190,6 @@ def exp3_plots():
     plt.show()
 
 if __name__ == "__main__":
+    exp1_plots()
+    exp2_plots()
     exp3_plots()
