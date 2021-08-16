@@ -52,7 +52,7 @@ def solve_ode(f, t0, t1, dt, x0, pars):
 	for i in range(iterations):
 		# Creating a loop to find the next euler step and iterate the next solution
 		k1 = f(t[i], x[i], q, *pars)
-        k2 = f(t[i]+dt, x[i]+dt*k1, q, *pars)
+		k2 = f(t[i]+dt, x[i]+dt*k1, q, *pars)
         x[i+1] = x[i] + 0.5*dt*(k1+k2)
 
 	return t, x
