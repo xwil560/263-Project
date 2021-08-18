@@ -4,22 +4,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
-def pressure_ode_model(t, P, q, aP, bP, P0):
+def pressure_ode_model(t, P, q, a, b, P0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
         -----------
         t : float
             Independent variable.
-        x : float
+        P : float
             Dependent variable.
         q : float
             Source/sink rate.
-        ap : float
+        a : float
             Source/sink strength parameter.
-        bp : float
+        b : float
             Recharge strength parameter.
-        p0 : float
+        P0 : float
             Ambient value of dependent variable.
 
         Returns:
@@ -35,28 +35,28 @@ def pressure_ode_model(t, P, q, aP, bP, P0):
         ---------
 
     '''
-    dPdt = aP*q - bP*(P-P0)
+    dPdt = a*q - b*(P-P0)
 
     return dPdt
 
-def temp_ode_model(t, T, q, m, P, aT, bT, d, P0, T0):
+def temp_ode_model(t, T, q, m, P, a, b, d, P0, T0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
         -----------
         t : float
             Independent variable.
-        x : float
+        T : float
             Dependent variable.
         q : float
             Source/sink rate.
         m : float
             Mass variable
-        p : float
+        T : float
             Pressure variable
-        ap : float
+        a : float
             Source/sink strength parameter.
-        bp : float
+        b : float
             Pressure recharge strength parameter.
         d : float
             Temperature recharge strength parameter
@@ -78,7 +78,7 @@ def temp_ode_model(t, T, q, m, P, aT, bT, d, P0, T0):
         ---------
 
     '''
-    dTdt = T*q/m - bT/(aT*m)*T*(P-P0) + d(T-T0)
+    dTdt = T*q/m - b/(a*m)*T*(P-P0) + d(T-T0)
 
     return dTdt
 
@@ -225,7 +225,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         --------
         t : array-like
             Independent variable solution vector.
-        x : array-like
+        T : array-like
             Dependent variable solution vector.
 
         Notes:
@@ -308,11 +308,11 @@ def plot_temp_model():
 
     # Couldn't find much on specific values, we'll need to use SciPy curvefit.
     # 9.8 * 10**-3
-    ap = 9.81
-    bp = 1
+    a = 9.81
+    b = 1
     d = 100
-    pars1 = [ap, bp, p0]
-    pars2 = [ap, bp, d, p0, T0]
+    pars1 = [a, b, p0]
+    pars2 = [a, b, d, p0, T0]
 
     t1, P = solve_ode_pressure(pressure_ode_model, 1, 216, 1, p0, pars1)
 
