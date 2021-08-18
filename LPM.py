@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def pressure_ode_model(t, p, q, ap, bp, p0):
+def pressure_ode_model(t, p, q1, q2, ap1, ap2, bp, p0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -35,10 +35,10 @@ def pressure_ode_model(t, p, q, ap, bp, p0):
         ---------
 
     '''
-    f = ap*q-bp*(p-p0)
+    f = ap1*q1-ap2*q2-bp*(p-p0)
     return f
 
-def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
+def temp_ode_model(t, T, q1, q2, m, p, ap1, ap2, bp, d, p0, T0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -77,7 +77,8 @@ def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
         ---------
 
     '''
-    f = T*q/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
+    # f = T*q/m-T*q2/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
+    f = T*q1/(m*ap2)-T*q2/(m*ap1)-bp/(ap1*ap2*m)*T*(p-p0) + d(T-T0)
     return f
 
 def plot_benchmark():
@@ -102,8 +103,33 @@ def plot_benchmark():
     pass
 
 
+def interpolate_mass_source(t):
+    ''' Return mass source parameter q1 for steam injection.
+
+        Parameters:
+        -----------
+        t : array-like
+            Vector of times at which to interpolate the mass source.
+
+        Returns:
+        --------
+        q : array-like
+            Mass source (tonnes per day) interpolated at t.
+
+        Notes:
+        ------
+        Data interpolation can only be used between 0 - 216 days
+    '''
+    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
+    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+
+    q1 = np.interp(t, times, Steam)
+
+
+    return q1
+
 def interpolate_mass_sink(t):
-    ''' Return heat source parameter q for kettle experiment.
+    ''' Return mass sink parameter q2 for water and oil retrieving.
 
         Parameters:
         -----------
@@ -119,23 +145,18 @@ def interpolate_mass_sink(t):
         ------
         Data interpolation can only be used between 0 - 216 days
     '''
-    # timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    # Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
+    Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
-    # timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    # Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
+    Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
 
-    # W = np.interp(t, timesW, Water)
-    # O = np.interp(t, timesO, Oil)
+    W = np.interp(t, timesW, Water)
+    O = np.interp(t, timesO, Oil)
 
-    # q = W + O
+    q2 = W + O
 
-    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
-
-    q = np.interp(t, times, Steam)
-
-    return q
+    return q2
 
 def interpolate_mass_parameter(t):
     ''' Return heat source parameter q for kettle experiment.
@@ -202,8 +223,8 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
     '''
     # time array
     t = range(t0,t1,dt)
-    q = interpolate_mass_sink(t)
-
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
     # amount of euler steps to complete
     n = len(t)
     # initialise solution array
@@ -213,9 +234,9 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
     i = 0
     while (i < n-1):
 
-        fn1 = f(t[i], P[i], q[i], *pars)
+        fn1 = f(t[i], P[i], q1[i], q2[i], *pars)
         Pk1 = P[i] + dt*fn1
-        fn2 = f(t[i+1], Pk1, q[i], *pars)
+        fn2 = f(t[i+1], Pk1, q1[i], q2[i], *pars)
         P[i+1] = P[i] + dt*(fn1 + fn2)/2
         
         i = i+1
@@ -266,8 +287,9 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
     '''
     # time array
     t = range(t0,t1,dt)
-    q = interpolate_mass_sink(t)
-    m = interpolate_mass_parameter(t)
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
+    m = interpolate_mass_parameter(t) # need to fix this???
     '''
     might have to make all values of m that equal 0 to be 1 instead, because of division by zero. 
     '''
@@ -286,9 +308,9 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
     i = 0
     while (i < n-1):
 
-        fn1 = f(t[i], T[i], q[i], m[i], P[i], *pars)
+        fn1 = f(t[i], T[i], q1[i], q2[i], m[i], P[i], *pars)
         xk1 = T[i] + dt*fn1
-        fn2 = f(t[i+1], xk1, q[i], *pars)
+        fn2 = f(t[i+1], xk1, q1[i], q2[i], m[i], P[i] *pars)
         T[i+1] = T[i] + dt*(fn1 + fn2)/2
         
         i = i+1
@@ -323,18 +345,20 @@ def plot_TEMP_model():
     texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
     # pO = 381.187     1291.76
-    p0 = 381.187
+    p0 = 1291.76
     T0 = 180.698
 
     # couldn't find much on specific values, well need to use SciPy curvefit.
     #9.8 * 10**-3
-    ap = 3.5
+    # ap1 should be smaller than ap2, retrieval of fluids need to be weighted heavier.
+    ap1 = 2
+    ap2 = 3.75
     bp = 1
     d = 100
-    pars1 = [ap, bp, p0]
-    pars2 = [ap, bp, d, p0, T0]
+    pars1 = [ap1, ap2, bp, p0]
+    pars2 = [ap1, ap2, bp, d, p0, T0]
 
-    t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 381.187, pars1)
+    t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars1)
 
     #t2, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars2)
 
