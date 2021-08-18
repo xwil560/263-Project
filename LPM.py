@@ -2,6 +2,7 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 
 def pressure_ode_model(t, P, q1, q2, a1, a2, b, P0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
@@ -86,6 +87,8 @@ def interpolate_mass_source(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
+    os.chdir("data")
+
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
@@ -111,6 +114,8 @@ def interpolate_mass_sink(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
+    os.chdir("../data")
+
     time_water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
     water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
@@ -145,6 +150,8 @@ def interpolate_mass_parameter(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
+    os.chdir("data")
+
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
@@ -284,6 +291,8 @@ def plot_models():
         plot to the screen or save it to the disk.
 
     '''
+    os.chdir("data")
+
     # Experimental data for Temperature and Pressure
     texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
     Texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
@@ -306,6 +315,8 @@ def plot_models():
     pars1 = [a1, a2, b, p0]
     pars2 = [a1, a2, b, d, p0, T0]
 
+    os.chdir("..")
+
     t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars1)
     #t2, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars2)
 
@@ -321,12 +332,14 @@ def plot_models():
     ax1.set_title('Pressure and Temperature Models')
 
 	# Either show the plot to the screen or save a version of it to the disk
+    os.chdir("../plots")
+
     save_figure = False
     
     if not save_figure:
         plt.show()
     else:
-        plt.savefig('Pressure_Temp.png',dpi=300)
+        plt.savefig('Pressure_Temp.png', dpi=300)
 
     return
 

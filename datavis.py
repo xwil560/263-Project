@@ -61,7 +61,7 @@ def pilot_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('pilot_ts.png')
+    plt.savefig('pilot_ts.png', dpi=300)
     plt.show()
 
 def exp2_plots():
@@ -123,7 +123,7 @@ def exp2_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('exp2_ts.png')
+    plt.savefig('exp2_ts.png', dpi=300)
     plt.show()
 
 def exp3_plots():
@@ -186,7 +186,7 @@ def exp3_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('exp3_ts.png')
+    plt.savefig('exp3_ts.png', dpi=300)
     plt.show()
 
 if __name__ == "__main__":
