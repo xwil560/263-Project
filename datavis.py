@@ -157,7 +157,6 @@ def exp3_plots():
     pressure = np.genfromtxt('exp3_pressure.csv',skip_header=6,delimiter=",",usecols=1)
     axs3.plot(pressure_time,pressure,'g-',label="Pressure (kPa)")
 
-
     plt.suptitle("Experiment 3 Time Series")
 
     axs[0].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',ncol=2, borderaxespad=0.)

@@ -294,14 +294,13 @@ def plot_models():
     os.chdir("data")
 
     # Experimental data for Temperature and Pressure
-    texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
-    Texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
-
-    texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
+    Pexp_t = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
+    Texp_t = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
+    Texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
     
-    # pO = 381.187     1291.76
-    p0 = 1291.76
+    # PO = 381.187     1291.76
+    P0 = 1291.76
     T0 = 180.698
 
     # Couldn't find much on specific values, well need to use SciPy curvefit.
@@ -312,30 +311,32 @@ def plot_models():
     b = 1
     d = 100
 
-    pars1 = [a1, a2, b, p0]
-    pars2 = [a1, a2, b, d, p0, T0]
+    pars_P = [a1, a2, b, P0]
+    pars_T = [a1, a2, b, d, P0, T0]
 
     os.chdir("..")
 
-    t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars1)
-    #t2, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars2)
+    P_t, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars_P)
+    #T_t, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars_T)
 
-    f,ax1 = plt.subplots(nrows=1,ncols=1) # creates plot figure and axes
+    f,ax1 = plt.subplots(1,1) # Creating plot figure and axes
+    ax2 = ax1.twinx() # Creating separate axis
 
-    ax1.plot(texp2, Pexp, 'r.', label='EXP PRESSURE')
-    #ax1.plot(texp, Texp, 'g.', label='EXP TEMP')
-    ax1.plot(t1, P, 'b-', label='INTERPOLATED P')
-    #ax1.plot(t2, T, 'b-', label='INTERPOLATED T')
+    ax1.plot(Pexp_t, Pexp, 'r.', label='EXP PRESSURE')
+    ax1.plot(P_t, P, 'b-', label='INTERPOLATED P')
+    #ax2.plot(Texp_t, Texp, 'g.', label='EXP TEMP')
+    #ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
 
     # Setting y limits for each axes, drawing labels and legends 
     ax1.set_ylabel('Pressure')
+    ax2.set_ylabel('Temperature')
+    ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
 
 	# Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
-
     save_figure = False
-    
+
     if not save_figure:
         plt.show()
     else:
