@@ -304,27 +304,24 @@ def plot_models():
     pars_T = [a1, a2, b, d, P0, T0]
 
     P_t, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars_P)
-    #T_t, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
+    T_t, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
 
+    plt.rcParams["figure.figsize"] = (9,6)
     f, ax1 = plt.subplots(1,1) # Creating plot figure and axes
     ax2 = ax1.twinx() # Creating separate axis
 
-    ax1.plot(Pexp_t, Pexp, 'r.', label='EXP PRESSURE')
-    ax1.plot(P_t, P, 'r-', label='INTERPOLATED P')
-    #ax2.plot(Texp_t, Texp, 'b.', label='EXP TEMP')
-    #ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
+    ax1.plot(P_t, P, 'k-', label='Pressure Best Fit')
+    ax1.plot(Pexp_t, Pexp, 'k.', label='Data')
+    ax2.plot(T_t, T, 'r-', label='Temperature Best Fit')
+    ax2.plot(Texp_t, Texp, 'r.', label=' Data')
 
     # Setting y limits for each axes, drawing labels and legends 
-    ax1.set_ylabel('Pressure')
-    ax2.set_ylabel('Temperature')
+    ax1.set_ylabel('Pressure (kPa)')
+    ax2.set_ylabel('Temperature ($^{0}C$)')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
-
-    # Setting colour of axes
-    ax1.tick_params(axis='y',colors='red')
-    ax1.yaxis.label.set_color('red')
-    ax2.tick_params(axis='y',colors='blue')
-    ax2.yaxis.label.set_color('blue')
+    ax1.legend(loc='upper right')
+    ax2.legend(loc='lower left')
 
 	# Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
