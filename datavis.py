@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 
-def exp1_plots():
+def pilot_plots():
 
     plt.rcParams["figure.figsize"] = (8,6)
     os.chdir("data")
@@ -33,7 +33,7 @@ def exp1_plots():
     pressure = np.genfromtxt('tr_p.txt',skip_header=True,delimiter=",",usecols=1)
     axs3.plot(pressure_time,pressure,'g-',label="Pressure (kPa)")
 
-    plt.suptitle("Data Visualisation")
+    plt.suptitle("Pilot Study Time Series")
 
     axs[0].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',ncol=2, borderaxespad=0.)
     axs[0].set_ylabel("Steam Rate (tonnes/day)")
@@ -61,7 +61,7 @@ def exp1_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('exp1_plots.png')
+    plt.savefig('pilot_ts.png')
     plt.show()
 
 def exp2_plots():
@@ -95,7 +95,7 @@ def exp2_plots():
     pressure = np.genfromtxt('exp2_pressure.csv',skip_header=True,delimiter=",",usecols=1)
     axs3.plot(pressure_time,pressure,'g-',label="Pressure (kPa)")
 
-    plt.suptitle("Data Visualisation – Experiment 2")
+    plt.suptitle("Experiment 2 Time Series")
 
     axs[0].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',ncol=2, borderaxespad=0.)
     axs[0].set_ylabel("Steam Rate (tonnes/day)")
@@ -123,7 +123,7 @@ def exp2_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('exp2_plots.png')
+    plt.savefig('exp2_ts.png')
     plt.show()
 
 def exp3_plots():
@@ -158,7 +158,7 @@ def exp3_plots():
     axs3.plot(pressure_time,pressure,'g-',label="Pressure (kPa)")
 
 
-    plt.suptitle("Data Visualisation – Experiment 3")
+    plt.suptitle("Experiment 3 Time Series")
 
     axs[0].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',ncol=2, borderaxespad=0.)
     axs[0].set_ylabel("Steam Rate (tonnes/day)")
@@ -186,10 +186,10 @@ def exp3_plots():
 
     os.chdir("../plots")
     plt.tight_layout()
-    plt.savefig('exp3_plots.png')
+    plt.savefig('exp3_ts.png')
     plt.show()
 
 if __name__ == "__main__":
-    exp1_plots()
+    pilot_plots()
     exp2_plots()
     exp3_plots()
