@@ -119,16 +119,21 @@ def interpolate_mass_sink(t):
         ------
         Data interpolation can only be used between 0 - 216 days
     '''
-    timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    # timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
+    # Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
-    timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    # timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
+    # Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
 
-    W = np.interp(t, timesW, Water)
-    O = np.interp(t, timesO, Oil)
+    # W = np.interp(t, timesW, Water)
+    # O = np.interp(t, timesO, Oil)
 
-    q = W + O
+    # q = W + O
+
+    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
+    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+
+    q = np.interp(t, times, Steam)
 
     return q
 
@@ -317,19 +322,19 @@ def plot_TEMP_model():
 
     texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
-
-    p0 = 1291.76
+    # pO = 381.187     1291.76
+    p0 = 381.187
     T0 = 180.698
 
     # couldn't find much on specific values, well need to use SciPy curvefit.
     #9.8 * 10**-3
-    ap = 9.81
+    ap = 3.5
     bp = 1
     d = 100
     pars1 = [ap, bp, p0]
     pars2 = [ap, bp, d, p0, T0]
 
-    t1, P = solve_ode_pressure(pressure_ode_model, 1, 216, 1, p0, pars1)
+    t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 381.187, pars1)
 
     #t2, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars2)
 
@@ -338,7 +343,7 @@ def plot_TEMP_model():
 
     # **Whats happening here?**
     ax1.plot(texp2, Pexp, 'r.', label='EXP PRESSURE')
-    ax1.plot(texp, Texp, 'g.', label='EXP TEMP')
+    #ax1.plot(texp, Texp, 'g.', label='EXP TEMP')
     ax1.plot(t1, P, 'b-', label='INTERPOLATED P')
     #ax1.plot(t2, T, 'b-', label='INTERPOLATED T')
 
