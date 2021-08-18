@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
-def pressure_ode_model(t, p, q, ap, bp, p0):
+def pressure_ode_model(t, P, q, aP, bP, P0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -35,10 +35,11 @@ def pressure_ode_model(t, p, q, ap, bp, p0):
         ---------
 
     '''
-    dPdt = ap*q-bp*(p-p0)
+    dPdt = aP*q - bP*(P-P0)
+
     return dPdt
 
-def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
+def temp_ode_model(t, T, q, m, P, aT, bT, d, P0, T0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -77,7 +78,8 @@ def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
         ---------
 
     '''
-    dTdt = T*q/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
+    dTdt = T*q/m - bT/(aT*m)*T*(P-P0) + d(T-T0)
+
     return dTdt
 
 def interpolate_mass_sink(t):
@@ -97,16 +99,16 @@ def interpolate_mass_sink(t):
         ------
         Data interpolation can only be used between 0 - 216 days
     '''
-    os.chdir("changed_data")
+    os.chdir("../changed_data")
 
-    timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    time_water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
+    water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
-    timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    time_oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
+    oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
 
-    W = np.interp(t, timesW, Water)
-    O = np.interp(t, timesO, Oil)
+    W = np.interp(t, time_water, water)
+    O = np.interp(t, time_oil, oil)
 
     q = W + O
 
@@ -123,7 +125,7 @@ def interpolate_mass_parameter(t):
         Returns:
         --------
         m : array-like
-            Mass steam (tonnes per day) interpolated at t.
+            Mass of steam (tonnes per day) interpolated at t.
 
         Notes:
         ------
@@ -131,12 +133,12 @@ def interpolate_mass_parameter(t):
         I added a couple rows of zeros to take it to 216 days like the rest of the data.
         Data interpolation can only be used between 0 - 216 days
     '''
-    os.chdir("changed_data")
+    os.chdir("../changed_data")
 
-    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+    time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
+    steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
-    m = np.interp(t, times, Steam)
+    m = np.interp(t, time_steam, steam)
 
     return m
 
@@ -294,18 +296,18 @@ def plot_temp_model():
     '''
     os.chdir("changed_data")
 
-    # Experimental data for Temperature and Pressure
+    # Experimental data for temperature and pressure
     texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
     Texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
 
     texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
-    
+
     p0 = 1291.76
     T0 = 180.698
 
-    # couldn't find much on specific values, well need to use SciPy curvefit.
-    #9.8 * 10**-3
+    # Couldn't find much on specific values, we'll need to use SciPy curvefit.
+    # 9.8 * 10**-3
     ap = 9.81
     bp = 1
     d = 100
@@ -331,6 +333,7 @@ def plot_temp_model():
     ax1.set_title('Pressure and Temperature Models')
 
 	# EITHER show the plot to the screen OR save a version of it to the disk
+    os.chdir("../plots")
     save_figure = False
     if not save_figure:
         plt.show()
