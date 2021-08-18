@@ -1,5 +1,5 @@
-# ENGSCI263: LPM model
-# imports
+# ENGSCI 263: Lumped Parameter Model
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -25,13 +25,6 @@ def pressure_ode_model(t, P, q1, q2, a1, a2, b, P0):
         --------
         dPdt : float
             Derivative of dependent variable with respect to independent variable.
-
-        Notes:
-        ------
-        None
-
-        Examples:
-        ---------
 
     '''
     dPdt = (a1*q1) - (a2*q2) - b*(P-P0)
@@ -69,13 +62,6 @@ def temp_ode_model(t, T, q1, q2, m, P, a1, a2, b, d, P0, T0):
         dTdt : float
             Derivative of dependent variable with respect to independent variable.
 
-        Notes:
-        ------
-        None
-
-        Examples:
-        ---------
-
     '''
     # dTdt = (T*q/m - T*q2/m) - b/(a*m)*T*(P-P0) + d(T-T0)
     dTdt = (T*q1/(m*a2) - T*q2/(m*a1)) - b/(a1*a2*m)*T*(P-P0) + d(T-T0)
@@ -92,12 +78,12 @@ def interpolate_mass_source(t):
 
         Returns:
         --------
-        q : array-like
+        q1 : array-like
             Mass source (tonnes per day) interpolated at t.
 
         Notes:
         ------
-        Data interpolation can only be used between 0 - 216 days
+        Data interpolation can only be used between 0 - 216 days.
 
     '''
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
@@ -105,11 +91,10 @@ def interpolate_mass_source(t):
 
     q1 = np.interp(t, time_steam, steam)
 
-
     return q1
 
 def interpolate_mass_sink(t):
-    ''' Return mass sink parameter q2 for water and oil retrieving.
+    ''' Return mass sink parameter q2 for water and oil retrieval.
 
         Parameters:
         -----------
@@ -123,7 +108,7 @@ def interpolate_mass_sink(t):
 
         Notes:
         ------
-        Data interpolation can only be used between 0 - 216 days
+        Data interpolation can only be used between 0 - 216 days.
 
     '''
     time_water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
@@ -140,7 +125,7 @@ def interpolate_mass_sink(t):
     return q2
 
 def interpolate_mass_parameter(t):
-    ''' Return heat source parameter q for kettle experiment.
+    ''' Return mass parameter m for steam mass injected into reservoir.
 
         Parameters:
         -----------
@@ -150,14 +135,14 @@ def interpolate_mass_parameter(t):
         Returns:
         --------
         m : array-like
-            Mass steam (tonnes per day) interpolated at t.
+            Steam mass (tonnes per day) interpolated at t.
 
         Notes:
         ------
         Data ends at 160 days, as steam injection stops, for the ease of interpolation
         I added a couple rows of zeros to take it to 216 days like the rest of the data.
 
-        Data interpolation can only be used between 0 - 216 days
+        Data interpolation can only be used between 0 - 216 days.
 
     '''
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
@@ -168,12 +153,12 @@ def interpolate_mass_parameter(t):
     return m
 
 def solve_ode_pressure(f, t0, t1, dt, P0, pars):
-    ''' Solve an ODE numerically.
+    ''' Solve the pressure ODE numerically.
 
         Parameters:
         -----------
         f : callable
-            Function that returns dxdt given variable and parameter inputs.
+            Function that returns dPdt given variable and parameter inputs.
         t0 : float
             Initial time of solution.
         t1 : float
@@ -196,13 +181,6 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
         ------
         ODE is solved using the Improved Euler Method.
 
-        Assume that ODE function f takes the following inputs, in order:
-            1. independent variable
-            2. dependent variable
-            3. forcing term, q
-            4. all other parameters
-            
-            # Parameters in order
     '''
     # time array
     t = range(t0,t1,dt)
@@ -227,7 +205,7 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
     return t, P
 
 def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
-    ''' Solve an ODE numerically.
+    ''' Solve the temperature ODE numerically.
 
         Parameters:
         -----------
@@ -242,7 +220,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         T0 : float
             Initial value of solution.
         P : Array-like
-            Array of values of previously solved P
+            Array of values of previously solved P.
         pars : array-like
             List of parameters passed to ODE function f.
 
@@ -286,7 +264,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
 
     return t, T
 
-def plot_temp_model():
+def plot_models():
     ''' Plot the kettle LPM over top of the data.
 
         Parameters:
@@ -339,7 +317,7 @@ def plot_temp_model():
     #ax1.plot(t2, T, 'b-', label='INTERPOLATED T')
 
     # Setting y limits for each axes, drawing labels and legends 
-    ax1.set_ylabel('Temperature')
+    ax1.set_ylabel('Pressure')
     ax1.set_title('Pressure and Temperature Models')
 
 	# Either show the plot to the screen or save a version of it to the disk
@@ -353,7 +331,7 @@ def plot_temp_model():
     return
 
 if __name__ == "__main__":
-    plot_temp_model()
+    plot_models()
     
 
 
