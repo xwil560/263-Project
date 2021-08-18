@@ -1,6 +1,7 @@
 # imports
 import numpy as np
 from matplotlib import pyplot as plt
+from model import solve_ode, temperature_ode_model, pressure_ode_model
 #from .py import *
 
 
@@ -27,7 +28,7 @@ def temperature_benchmark():
     dtc = np.linspace(1, 3, 21)
     lastval = 0*dtc
     for i in range(21):
-        tsc, xsnc = solve_ode(ode_model, t0=0, t1=10,
+        tsc, xsnc = solve_ode(temperature_ode_model, t0=0, t1=10,
                               dt=1/dtc[i], x0=0, pars=[-1, 1, 1, 0])
         lastval[i] = xsnc[-1]
     ax3.plot(dtc, lastval, 'x')
@@ -57,7 +58,7 @@ def pressure_benchmark():
     dtc = np.linspace(1, 3, 21)
     lastval = 0*dtc
     for i in range(21):
-        tsc, xsnc = solve_ode(ode_model, t0=0, t1=10,
+        tsc, xsnc = solve_ode(pressure_ode_model, t0=0, t1=10,
                               dt=1/dtc[i], x0=0, pars=[-1, 1, 1, 0])
         lastval[i] = xsnc[-1]
     ax3.plot(dtc, lastval, 'x')
