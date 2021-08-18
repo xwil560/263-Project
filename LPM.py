@@ -87,7 +87,7 @@ def interpolate_mass_source(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
-    os.chdir("/Users/danieltorrey/Documents/Courses/ENGSCI 263/CM_Project/data")
+    os.chdir("../data")
 
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
@@ -150,7 +150,7 @@ def interpolate_mass_parameter(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
-    os.chdir("/Users/danieltorrey/Documents/Courses/ENGSCI 263/CM_Project/data")
+    os.chdir("../data")
 
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
@@ -303,18 +303,16 @@ def plot_models():
     pars_P = [a1, a2, b, P0]
     pars_T = [a1, a2, b, d, P0, T0]
 
-    os.chdir("..")
-
     P_t, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars_P)
-    T_t, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
+    #T_t, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
 
     f, ax1 = plt.subplots(1,1) # Creating plot figure and axes
     ax2 = ax1.twinx() # Creating separate axis
 
     ax1.plot(Pexp_t, Pexp, 'r.', label='EXP PRESSURE')
     ax1.plot(P_t, P, 'r-', label='INTERPOLATED P')
-    ax2.plot(Texp_t, Texp, 'b.', label='EXP TEMP')
-    ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
+    #ax2.plot(Texp_t, Texp, 'b.', label='EXP TEMP')
+    #ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
 
     # Setting y limits for each axes, drawing labels and legends 
     ax1.set_ylabel('Pressure')
