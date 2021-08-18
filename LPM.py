@@ -3,23 +3,22 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-
-def pressure_ode_model(t, p, q1, q2, ap1, ap2, bp, p0):
+def pressure_ode_model(t, P, q1, q2, a1, a2, b, P0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
         -----------
         t : float
             Independent variable.
-        x : float
+        P : float
             Dependent variable.
         q : float
             Source/sink rate.
-        ap : float
+        a : float
             Source/sink strength parameter.
-        bp : float
+        b : float
             Recharge strength parameter.
-        p0 : float
+        P0 : float
             Ambient value of dependent variable.
 
         Returns:
@@ -35,31 +34,32 @@ def pressure_ode_model(t, p, q1, q2, ap1, ap2, bp, p0):
         ---------
 
     '''
-    f = ap1*q1-ap2*q2-bp*(p-p0)
-    return f
+    dPdt = (a1*q1) - (a2*q2) - b*(P-P0)
 
-def temp_ode_model(t, T, q1, q2, m, p, ap1, ap2, bp, d, p0, T0):
+    return dPdt
+
+def temp_ode_model(t, T, q1, q2, m, P, a1, a2, b, d, P0, T0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
         -----------
         t : float
             Independent variable.
-        x : float
+        T : float
             Dependent variable.
         q : float
             Source/sink rate.
         m : float
             Mass variable
-        p : float
+        P : float
             Pressure variable
-        ap : float
+        a : float
             Source/sink strength parameter.
-        bp : float
+        b : float
             Pressure recharge strength parameter.
         d : float
-            Temperature recharge strength parameter
-        p0 : float
+            Temperature recharge strength parameter.
+        P0 : float
             Ambient value of solved dependent variable.
         T0 : float
             Ambient value of dependent variable.
@@ -77,31 +77,10 @@ def temp_ode_model(t, T, q1, q2, m, p, ap1, ap2, bp, d, p0, T0):
         ---------
 
     '''
-    # f = T*q/m-T*q2/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
-    f = T*q1/(m*ap2)-T*q2/(m*ap1)-bp/(ap1*ap2*m)*T*(p-p0) + d(T-T0)
-    return f
-
-def plot_benchmark():
-    ''' Compare analytical and numerical solutions.
-
-        Parameters:
-        -----------
-        none
-
-        Returns:
-        --------
-        none
-
-        Notes:
-        ------
-        This function called within if __name__ == "__main__":
-
-        It should contain commands to obtain analytical and numerical solutions,
-        plot these, and either display the plot to the screen or save it to the disk.
-        
-    '''
-    pass
-
+    # dTdt = (T*q/m - T*q2/m) - b/(a*m)*T*(P-P0) + d(T-T0)
+    dTdt = (T*q1/(m*a2) - T*q2/(m*a1)) - b/(a1*a2*m)*T*(P-P0) + d(T-T0)
+    
+    return dTdt
 
 def interpolate_mass_source(t):
     ''' Return mass source parameter q1 for steam injection.
@@ -119,11 +98,12 @@ def interpolate_mass_source(t):
         Notes:
         ------
         Data interpolation can only be used between 0 - 216 days
-    '''
-    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
-    q1 = np.interp(t, times, Steam)
+    '''
+    time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
+    steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+
+    q1 = np.interp(t, time_steam, steam)
 
 
     return q1
@@ -144,15 +124,16 @@ def interpolate_mass_sink(t):
         Notes:
         ------
         Data interpolation can only be used between 0 - 216 days
+
     '''
-    timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    time_water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
+    water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
-    timesO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    Oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    time_oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
+    oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
 
-    W = np.interp(t, timesW, Water)
-    O = np.interp(t, timesO, Oil)
+    W = np.interp(t, time_water, water)
+    O = np.interp(t, time_oil, oil)
 
     q2 = W + O
 
@@ -175,12 +156,14 @@ def interpolate_mass_parameter(t):
         ------
         Data ends at 160 days, as steam injection stops, for the ease of interpolation
         I added a couple rows of zeros to take it to 216 days like the rest of the data.
-        Data interpolation can only be used between 0 - 216 days
-    '''
-    times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
-    m = np.interp(t, times, Steam)
+        Data interpolation can only be used between 0 - 216 days
+
+    '''
+    time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
+    steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+
+    m = np.interp(t, time_steam, steam)
 
     return m
 
@@ -256,7 +239,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
             Final time of solution.
         dt : float
             Time step length.
-        x0 : float
+        T0 : float
             Initial value of solution.
         P : Array-like
             Array of values of previously solved P
@@ -267,23 +250,9 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         --------
         t : array-like
             Independent variable solution vector.
-        x : array-like
+        T : array-like
             Dependent variable solution vector.
 
-        Notes:
-        ------
-        ODE should be solved using the Improved Euler Method. 
-
-        Function q(t) should be hard coded within this method. Create duplicates of 
-        solve_ode for models with different q(t).
-
-        Assume that ODE function f takes the following inputs, in order:
-            1. independent variable
-            2. dependent variable
-            3. forcing term, q
-            4. all other parameters
-            
-            # Parameters in order
     '''
     # time array
     t = range(t0,t1,dt)
@@ -304,8 +273,8 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
     # initialise solution array
     T = np.zeros(n)
     T[0] = T0
-
     i = 0
+    
     while (i < n-1):
 
         fn1 = f(t[i], T[i], q1[i], q2[i], m[i], P[i], *pars)
@@ -317,8 +286,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
 
     return t, T
 
-
-def plot_TEMP_model():
+def plot_temp_model():
     ''' Plot the kettle LPM over top of the data.
 
         Parameters:
@@ -333,8 +301,8 @@ def plot_TEMP_model():
         ------
         This function called within if __name__ == "__main__":
 
-        It should contain commands to read and plot the experimental data, run and 
-        plot the kettle LPM for hard coded parameters, and then either display the 
+        It contains commands to read and plot the experimental data, run and 
+        plot the LPM for hard coded parameters, and then either display the 
         plot to the screen or save it to the disk.
 
     '''
@@ -344,40 +312,39 @@ def plot_TEMP_model():
 
     texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
+    
     # pO = 381.187     1291.76
     p0 = 1291.76
     T0 = 180.698
 
-    # couldn't find much on specific values, well need to use SciPy curvefit.
-    #9.8 * 10**-3
-    # ap1 should be smaller than ap2, retrieval of fluids need to be weighted heavier.
-    ap1 = 2
-    ap2 = 3.75
-    bp = 1
+    # Couldn't find much on specific values, well need to use SciPy curvefit.
+    # 9.8 * 10**-3
+    # a1 should be smaller than a2, retrieval of fluids need to be weighted heavier.
+    a1 = 2
+    a2 = 3.75
+    b = 1
     d = 100
-    pars1 = [ap1, ap2, bp, p0]
-    pars2 = [ap1, ap2, bp, d, p0, T0]
+
+    pars1 = [a1, a2, b, p0]
+    pars2 = [a1, a2, b, d, p0, T0]
 
     t1, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars1)
-
     #t2, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars2)
-
 
     f,ax1 = plt.subplots(nrows=1,ncols=1) # creates plot figure and axes
 
-    # **Whats happening here?**
     ax1.plot(texp2, Pexp, 'r.', label='EXP PRESSURE')
     #ax1.plot(texp, Texp, 'g.', label='EXP TEMP')
     ax1.plot(t1, P, 'b-', label='INTERPOLATED P')
     #ax1.plot(t2, T, 'b-', label='INTERPOLATED T')
 
-    # **Whats happening here?**
-    # setting y limits for each axes, drawing labels and legends 
+    # Setting y limits for each axes, drawing labels and legends 
     ax1.set_ylabel('Temperature')
     ax1.set_title('Pressure and Temperature Models')
 
-	# EITHER show the plot to the screen OR save a version of it to the disk
+	# Either show the plot to the screen or save a version of it to the disk
     save_figure = False
+    
     if not save_figure:
         plt.show()
     else:
@@ -385,9 +352,8 @@ def plot_TEMP_model():
 
     return
 
-
 if __name__ == "__main__":
-    plot_TEMP_model()
+    plot_temp_model()
     
 
 
