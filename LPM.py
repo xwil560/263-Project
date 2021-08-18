@@ -28,7 +28,7 @@ def pressure_ode_model(t, P, q1, q2, a1, a2, b, P0):
             Derivative of dependent variable with respect to independent variable.
 
     '''
-    dPdt = (a1*q1) - (a2*q2) - b*(P-P0)
+    dPdt = (a1*q1 - a2*q2) - b*(P-P0)
 
     return dPdt
 
@@ -65,7 +65,7 @@ def temp_ode_model(t, T, q1, q2, m, P, a1, a2, b, d, P0, T0):
 
     '''
     # dTdt = (T*q/m - T*q2/m) - b/(a*m)*T*(P-P0) + d(T-T0)
-    dTdt = (T*q1/(m*a2) - T*q2/(m*a1)) - b/(a1*a2*m)*T*(P-P0) + d(T-T0)
+    dTdt = (T*q1/m*a2 - T*q2/m*a1) - b/(a1*a2*m)*T*(P-P0) + d*(T-T0)
     
     return dTdt
 
@@ -87,7 +87,7 @@ def interpolate_mass_source(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
-    os.chdir("data")
+    os.chdir("/Users/danieltorrey/Documents/Courses/ENGSCI 263/CM_Project/data")
 
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
@@ -150,7 +150,7 @@ def interpolate_mass_parameter(t):
         Data interpolation can only be used between 0 - 216 days.
 
     '''
-    os.chdir("data")
+    os.chdir("/Users/danieltorrey/Documents/Courses/ENGSCI 263/CM_Project/data")
 
     time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
@@ -165,7 +165,7 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
         Parameters:
         -----------
         f : callable
-            Function that returns dPdt given variable and parameter inputs.
+            Function that returns dP/dt given variable and parameter inputs.
         t0 : float
             Initial time of solution.
         t1 : float
@@ -189,26 +189,25 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
         ODE is solved using the Improved Euler Method.
 
     '''
-    # time array
-    t = range(t0,t1,dt)
-    q1 = interpolate_mass_source(t)
-    q2 = interpolate_mass_sink(t)
-    # amount of euler steps to complete
-    n = len(t)
-    # initialise solution array
-    P = np.zeros(n)
+    iterations = int(np.ceil((t1-t0)/dt))
+
+    t = t0 + np.arange(iterations+1)*dt
+    t[0] = t0
+    for i in range (iterations):
+        t[i+1] = t[i] + dt
+
+    P = 0.*t
     P[0] = P0
 
-    i = 0
-    while (i < n-1):
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
 
-        fn1 = f(t[i], P[i], q1[i], q2[i], *pars)
-        Pk1 = P[i] + dt*fn1
-        fn2 = f(t[i+1], Pk1, q1[i], q2[i], *pars)
-        P[i+1] = P[i] + dt*(fn1 + fn2)/2
+    for i in range(iterations):
+
+        k1 = f(t[i], P[i], q1[i], q2[i], *pars)
+        k2 = f(t[i]+dt, P[i]+dt*k1, q1[i], q2[i], *pars)
+        P[i+1] = P[i] + 0.5*dt*(k1+k2)
         
-        i = i+1
-
     return t, P
 
 def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
@@ -217,7 +216,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         Parameters:
         -----------
         f : callable
-            Function that returns dxdt given variable and parameter inputs.
+            Function that returns dT/dt given variable and parameter inputs.
         t0 : float
             Initial time of solution.
         t1 : float
@@ -239,36 +238,26 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
             Dependent variable solution vector.
 
     '''
-    # time array
-    t = range(t0,t1,dt)
+    iterations = int(np.ceil((t1-t0)/dt))
+
+    t = t0 + np.arange(iterations+1)*dt
+    t[0] = t0
+    for i in range (iterations):
+        t[i+1] = t[i] + dt
+
+    T = 0.*t
+    T[0] = T0
+
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
-    m = interpolate_mass_parameter(t) # need to fix this???
-    '''
-    might have to make all values of m that equal 0 to be 1 instead, because of division by zero. 
-    '''
-    i = 0
-    while (i < len(t)):
-        if m[i] < 1:
-            m[i] = 1
-        i = i+1
+    m = interpolate_mass_parameter(t)
 
-    # amount of euler steps to complete
-    n = len(t)
-    # initialise solution array
-    T = np.zeros(n)
-    T[0] = T0
-    i = 0
-    
-    while (i < n-1):
+    for i in range(iterations):
 
-        fn1 = f(t[i], T[i], q1[i], q2[i], m[i], P[i], *pars)
-        xk1 = T[i] + dt*fn1
-        fn2 = f(t[i+1], xk1, q1[i], q2[i], m[i], P[i] *pars)
-        T[i+1] = T[i] + dt*(fn1 + fn2)/2
+        k1 = f(t[i], T[i], q1[i], q2[i], m[i], P[i], *pars)
+        k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], q2[i], m[i], P[i], *pars)
+        T[i+1] = T[i] + 0.5*dt*(k1+k2)
         
-        i = i+1
-
     return t, T
 
 def plot_models():
@@ -317,21 +306,27 @@ def plot_models():
     os.chdir("..")
 
     P_t, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, 1291.76, pars_P)
-    #T_t, T = solve_ode_temp(temp_ode_model, 1, 216, 1, T0, P, pars_T)
+    T_t, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
 
-    f,ax1 = plt.subplots(1,1) # Creating plot figure and axes
+    f, ax1 = plt.subplots(1,1) # Creating plot figure and axes
     ax2 = ax1.twinx() # Creating separate axis
 
     ax1.plot(Pexp_t, Pexp, 'r.', label='EXP PRESSURE')
-    ax1.plot(P_t, P, 'b-', label='INTERPOLATED P')
-    #ax2.plot(Texp_t, Texp, 'g.', label='EXP TEMP')
-    #ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
+    ax1.plot(P_t, P, 'r-', label='INTERPOLATED P')
+    ax2.plot(Texp_t, Texp, 'b.', label='EXP TEMP')
+    ax2.plot(T_t, T, 'b-', label='INTERPOLATED T')
 
     # Setting y limits for each axes, drawing labels and legends 
     ax1.set_ylabel('Pressure')
     ax2.set_ylabel('Temperature')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
+
+    # Setting colour of axes
+    ax1.tick_params(axis='y',colors='red')
+    ax1.yaxis.label.set_color('red')
+    ax2.tick_params(axis='y',colors='blue')
+    ax2.yaxis.label.set_color('blue')
 
 	# Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
