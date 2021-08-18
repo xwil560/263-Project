@@ -2,7 +2,7 @@
 # imports
 import numpy as np
 from matplotlib import pyplot as plt
-
+import os
 
 def pressure_ode_model(t, p, q, ap, bp, p0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
@@ -35,8 +35,8 @@ def pressure_ode_model(t, p, q, ap, bp, p0):
         ---------
 
     '''
-    f = ap*q-bp*(p-p0)
-    return f
+    dPdt = ap*q-bp*(p-p0)
+    return dPdt
 
 def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
@@ -77,30 +77,8 @@ def temp_ode_model(t, T, q, m, p, ap, bp, d, p0, T0):
         ---------
 
     '''
-    f = T*q/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
-    return f
-
-def plot_benchmark():
-    ''' Compare analytical and numerical solutions.
-
-        Parameters:
-        -----------
-        none
-
-        Returns:
-        --------
-        none
-
-        Notes:
-        ------
-        This function called within if __name__ == "__main__":
-
-        It should contain commands to obtain analytical and numerical solutions,
-        plot these, and either display the plot to the screen or save it to the disk.
-        
-    '''
-    pass
-
+    dTdt = T*q/m-bp/(ap*m)*T*(p-p0) + d(T-T0)
+    return dTdt
 
 def interpolate_mass_sink(t):
     ''' Return heat source parameter q for kettle experiment.
@@ -119,6 +97,8 @@ def interpolate_mass_sink(t):
         ------
         Data interpolation can only be used between 0 - 216 days
     '''
+    os.chdir("changed_data")
+
     timesW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
     Water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
 
@@ -151,6 +131,8 @@ def interpolate_mass_parameter(t):
         I added a couple rows of zeros to take it to 216 days like the rest of the data.
         Data interpolation can only be used between 0 - 216 days
     '''
+    os.chdir("changed_data")
+
     times = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
     Steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
 
@@ -290,8 +272,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
 
     return t, T
 
-
-def plot_TEMP_model():
+def plot_temp_model():
     ''' Plot the kettle LPM over top of the data.
 
         Parameters:
@@ -311,13 +292,15 @@ def plot_TEMP_model():
         plot to the screen or save it to the disk.
 
     '''
+    os.chdir("changed_data")
+
     # Experimental data for Temperature and Pressure
     texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
     Texp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
 
     texp2 = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     Pexp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
-
+    
     p0 = 1291.76
     T0 = 180.698
 
@@ -356,9 +339,8 @@ def plot_TEMP_model():
 
     return
 
-
 if __name__ == "__main__":
-    plot_TEMP_model()
+    plot_temp_model()
     
 
 
