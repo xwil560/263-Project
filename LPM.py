@@ -231,6 +231,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         k1 = f(t[i], T[i], q1[i], P[i], *pars)
         k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], P[i], *pars)
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
+        print(T[i])
         
     return t, T
 
@@ -264,11 +265,12 @@ def plot_models():
     
     P0 = 1291.76
     T0 = 180.698
-    M0 = 100
+    
 
+    M0 = 10000
     a = 2
     b = 1
-    bt = 100
+    bt = 0.01
     
     pars_P = [a, b, P0]
     pars_T = [a, b, bt, P0, T0, M0]
