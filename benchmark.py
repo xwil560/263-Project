@@ -19,7 +19,6 @@ def pressure_benchmark():
     # Initialise paremeters for the ode model
     p0 = 1
     a1 = 2
-    a2 = 3
     b = 1
     t0 = 0
     t1 = 20
@@ -29,11 +28,11 @@ def pressure_benchmark():
     q1 = 0*t
     q1.fill(1)
     q2 = np.sin(t)
-    pars1 = [a1, a2, b, p0]  # The ode model is dp/dt=3-3sin(t)-p
+    pars1 = [a1, b, p0]  # The ode model is dp/dt=-2(sin(t)-t)-(P-P0)
     ts, xsn = solve_ode_pressure(
         pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
     # solve the ode with the given parameter analytically with wolfram alpha
-    xsa = 0.5*(-7*np.exp(-t)-3*np.sin(t)+3*np.cos(t)+6)
+    xsa = -3*np.exp(-t)-np.sin(t)+np.cos(t)+3
     # subplot the 3 graphs
     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
     # First plot the graph for comparing analytical and numerical solution
