@@ -30,7 +30,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
             Derivative of dependent variable with respect to independent variable.
 
     '''
-    dPdt = -a*(q2-q1) - b*(P-P0)
+    dPdt = -a*(1.5*q2-q1) - b*(P-P0)
 
     return dPdt
 
@@ -71,7 +71,7 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
     else:
         Td = T0
 
-    dTdt = (q1/M0)*T - b/(a*M0) * (P-P0) * (Td-T) + bt*(T-T0)
+    dTdt = (q1/M0)*T - b/(a*M0) * (P-P0) * (Td-T) - bt*(T-T0)/M0
 
     return dTdt
 
@@ -264,8 +264,8 @@ def plot_models():
     # Initialising parameters
     a = 2.5
     b = 1
-    bt = 0.00001
-    M0 = 1000000
+    bt = 500
+    M0 = 30000
 
     # Initialising time array
     t0 = 0
