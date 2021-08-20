@@ -231,7 +231,6 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         k1 = f(t[i], T[i], q1[i], P[i], *pars)
         k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], P[i], *pars)
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
-        print(T[i])
         
     return t, T
 
@@ -257,21 +256,23 @@ def plot_models():
     '''
     os.chdir("data")
 
-    # Experimental data for Temperature and Pressure
+    # Experimental data for pressure and temperature
     Pt_exp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
     P_exp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
     Tt_exp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
     T_exp = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
     
+    # Initial values of pressure and temperature
     P0 = 1291.76
     T0 = 180.698
     
-
-    M0 = 10000
-    a = 2
+    # Initialising parameters
+    a = 2.5
     b = 1
-    bt = 0.01
+    bt = 0.00001
+    M0 = 1000000
     
+    # Initialising parameter arrays
     pars_P = [a, b, P0]
     pars_T = [a, b, bt, P0, T0, M0]
 
