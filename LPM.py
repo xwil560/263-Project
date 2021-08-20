@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
+
 def pressure_ode_model(t, P, q1, q2, a, b, P0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
@@ -33,6 +34,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
     dPdt = -a*(q2-q1) - b*(P-P0)
 
     return dPdt
+
 
 def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
@@ -70,10 +72,11 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
         td = T
     else:
         td = T0
-    
+
     dTdt = (q1/M0)*T - b/(a*M0) * (P-P0) * (td-T) + bt*(T-T0)
-    
+
     return dTdt
+
 
 def interpolate_mass_source(t):
     ''' Return mass source parameter q1 for steam injection.
@@ -95,12 +98,15 @@ def interpolate_mass_source(t):
     '''
     os.chdir("../data")
 
-    time_steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    steam = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+    time_steam = np.genfromtxt(
+        'tr_steam.txt', skip_header=1, usecols=0, delimiter=',')
+    steam = np.genfromtxt('tr_steam.txt', skip_header=1,
+                          usecols=1, delimiter=',')
 
     q1 = np.interp(t, time_steam, steam)
 
     return q1
+
 
 def interpolate_mass_sink(t):
     ''' Return mass sink parameter q2 for water and oil retrieval.
@@ -122,11 +128,14 @@ def interpolate_mass_sink(t):
     '''
     os.chdir("../data")
 
-    time_water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    water = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    time_water = np.genfromtxt(
+        'tr_water.txt', skip_header=1, usecols=0, delimiter=',')
+    water = np.genfromtxt('tr_water.txt', skip_header=1,
+                          usecols=1, delimiter=',')
 
-    time_oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    oil = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    time_oil = np.genfromtxt(
+        'tr_oil.txt', skip_header=1, usecols=0, delimiter=',')
+    oil = np.genfromtxt('tr_oil.txt', skip_header=1, usecols=1, delimiter=',')
 
     W = np.interp(t, time_water, water)
     O = np.interp(t, time_oil, oil)
@@ -135,7 +144,8 @@ def interpolate_mass_sink(t):
 
     return q2
 
-def solve_ode_pressure(f, t0, t1, dt, P0, pars):
+
+def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
     ''' Solve the pressure ODE numerically.
 
         Parameters:
@@ -169,22 +179,20 @@ def solve_ode_pressure(f, t0, t1, dt, P0, pars):
 
     t = t0 + np.arange(iterations+1)*dt
     t[0] = t0
-    for i in range (iterations):
+    for i in range(iterations):
         t[i+1] = t[i] + dt
 
     P = 0.*t
     P[0] = P0
-
-    q1 = interpolate_mass_source(t)
-    q2 = interpolate_mass_sink(t)
 
     for i in range(iterations):
 
         k1 = f(t[i], P[i], q1[i], q2[i], *pars)
         k2 = f(t[i]+dt, P[i]+dt*k1, q1[i], q2[i], *pars)
         P[i+1] = P[i] + 0.5*dt*(k1+k2)
-        
+
     return t, P
+
 
 def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
     ''' Solve the temperature ODE numerically.
@@ -218,7 +226,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
 
     t = t0 + np.arange(iterations+1)*dt
     t[0] = t0
-    for i in range (iterations):
+    for i in range(iterations):
         t[i+1] = t[i] + dt
 
     T = 0.*t
@@ -233,6 +241,7 @@ def solve_ode_temp(f, t0, t1, dt, T0, P, pars):
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
         
     return t, T
+
 
 def plot_models():
     ''' Plot the kettle LPM over top of the data.
@@ -255,6 +264,13 @@ def plot_models():
 
     '''
     os.chdir("data")
+    # Get the interpolation function to for the ode solver
+    t0 = 0
+    t1 = 216
+    dt = 1
+    t = range(t0, t1, dt)
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
 
     # Experimental data for pressure and temperature
     Pt_exp = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
@@ -276,19 +292,20 @@ def plot_models():
     pars_P = [a, b, P0]
     pars_T = [a, b, bt, P0, T0, M0]
 
-    Pt, P = solve_ode_pressure(pressure_ode_model, 0, 216, 1, P0, pars_P)
+    Pt, P = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
     Tt, T = solve_ode_temp(temp_ode_model, 0, 216, 1, T0, P, pars_T)
 
-    plt.rcParams["figure.figsize"] = (9,6)
-    f, ax1 = plt.subplots(1,1) # Creating plot figure and axes
-    ax2 = ax1.twinx() # Creating separate axis
+    plt.rcParams["figure.figsize"] = (9, 6)
+    f, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
+    ax2 = ax1.twinx()  # Creating separate axis
 
     ax1.plot(Pt, P, 'k-', label='Pressure Best Fit')
     ax1.plot(Pt_exp, P_exp, 'k.', label='Data')
     ax2.plot(Tt, T, 'r-', label='Temperature Best Fit')
     ax2.plot(Tt_exp, T_exp, 'r.', label=' Data')
 
-    # Setting y limits for each axes, drawing labels and legends 
+    # Setting y limits for each axes, drawing labels and legends
     ax1.set_ylabel('Pressure (kPa)')
     ax2.set_ylabel('Temperature ($^{0}C$)')
     ax1.set_xlabel('Time (days)')
@@ -296,7 +313,7 @@ def plot_models():
     ax1.legend(loc='upper right')
     ax2.legend(loc='lower left')
 
-	# Either show the plot to the screen or save a version of it to the disk
+    # Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
     save_figure = False
 
@@ -307,8 +324,6 @@ def plot_models():
 
     return
 
+
 if __name__ == "__main__":
     plot_models()
-    
-
-
