@@ -29,19 +29,28 @@ def pressure_benchmark():
     q1.fill(1)
     q2 = np.sin(t)
     pars1 = [a1, b, p0]  # The ode model is dp/dt=-2(sin(t)-t)-(P-P0)
-    ts, xsn = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
+
+    ts, xsn = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
     # solve the ode with the given parameter analytically with wolfram alpha
     xsa = -3*np.exp(-t)-np.sin(t)+np.cos(t)+3
+
     # subplot the 3 graphs
+    plt.rcParams["figure.figsize"] = (8,4)
     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+
     # First plot the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
     ax1.plot(ts, xsa, '-')
-    ax1.title.set_text('Analytical solution matching')
-    # Secondly plot the graph for absolute erro term
+    ax1.title.set_text('Pressure Benchmark')
+    ax1.set_ylabel("Pressure (kPa)")
+    ax1.set_xlabel("Time (days)")
+
+    # Secondly plot the graph for absolute error term
     ax2.plot(ts, np.absolute(xsn-xsa)/np.absolute(xsa), '-')
-    ax2.title.set_text('Absolute Errors')
+    ax2.title.set_text('Error Analysis')
+    ax2.set_ylabel("Relative Error Against Benchmark")
+    ax2.set_xlabel("Time (days)")
+
     # Finally plot convergence testing
     dtc = np.linspace(1, 7, 21)
     lastval = 0*dtc
@@ -56,11 +65,15 @@ def pressure_benchmark():
             pressure_ode_model, t0, t1, ndt, q1c, q2c, p0, pars1)
         lastval[i] = xsnc[-1]
     ax3.plot(dtc, lastval, 'o')
-    ax3.title.set_text('Convergence testing')
+    ax3.title.set_text('Timestep Convergence')
+    ax3.set_ylabel("X(t)")
+    ax3.set_xlabel("1/Δt")
+
+    plt.tight_layout()
     plt.show()
 
 
-def temperature_benchmark():
+#def temperature_benchmark():
     ''' Check if the temperature fit the model
 
         Parameter:
