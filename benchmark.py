@@ -61,8 +61,7 @@ def pressure_benchmark():
         tc = t0+np.arange(ntc+1)*ndt
         q1c = 0*tc
         q2c = np.sin(tc)
-        tsc, xsnc = solve_ode_pressure(
-            pressure_ode_model, t0, t1, ndt, q1c, q2c, p0, pars1)
+        tsc, xsnc = solve_ode_pressure(pressure_ode_model, t0, t1, ndt, q1c, q2c, p0, pars1)
         lastval[i] = xsnc[-1]
     ax3.plot(dtc, lastval, 'o')
     ax3.title.set_text('Timestep Convergence')
@@ -72,8 +71,7 @@ def pressure_benchmark():
     plt.tight_layout()
     plt.show()
 
-
-#def temperature_benchmark():
+def temperature_benchmark():
     ''' Check if the temperature fit the model
 
         Parameter:
@@ -89,19 +87,17 @@ def pressure_benchmark():
     # solve the ode with the given parameter analytically
     # xsa=np.exp(-ts)-1
     # subplot the 2 graphs
-    f, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    ax1.plot(ts, xsn, '-x')
-    ax1.plot(ts, xsa, '-')
-    ax2.plot(ts, np.absolute(xsn-xsa)/np.absolute(xsa), '-')
-    dtc = np.linspace(1, 3, 21)
-    lastval = 0*dtc
-    for i in range(21):
-        tsc, xsnc = solve_ode(pressure_ode_model, t0=0, t1=10,
-                              dt=1/dtc[i], x0=0, pars=[-1, 1, 1, 0])
-        lastval[i] = xsnc[-1]
-    ax3.plot(dtc, lastval, 'x')
-    plt.show()
-
+    #f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    #ax1.plot(ts, xsn, '-x')
+    #ax1.plot(ts, xsa, '-')
+    #ax2.plot(ts, np.absolute(xsn-xsa)/np.absolute(xsa), '-')
+    #dtc = np.linspace(1, 3, 21)
+    #lastval = 0*dtc
+    #for i in range(21):
+        #tsc, xsnc = solve_ode_temp(temp_ode_model, t0=0, t1=10, dt=1/dtc[i], x0=0, pars=[-1, 1, 1, 0])
+        #lastval[i] = xsnc[-1]
+    #ax3.plot(dtc, lastval, 'x')
+    #plt.show()
 
 if __name__ == '__main__':
     pressure_benchmark()
