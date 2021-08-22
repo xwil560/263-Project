@@ -23,7 +23,8 @@ def pressure_benchmark():
     t0 = 0
     t1 = 20
     dt = 1/20
-    nt = int(np.ceil((t1-t0)/dt))		# compute number of Euler steps to take
+
+    nt = int(np.ceil((t1-t0)/dt)) # Compute number of Euler steps to take
     t = t0+np.arange(nt+1)*dt
     q1 = 0*t
     q1.fill(1)
@@ -31,31 +32,30 @@ def pressure_benchmark():
     pars1 = [a1, b, p0]  # The ode model is dp/dt=-2(sin(t)-t)-(P-P0)
 
     ts, xsn = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
-    # solve the ode with the given parameter analytically with wolfram alpha
+    # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = -3*np.exp(-t)-np.sin(t)+np.cos(t)+3
 
-    # subplot the 3 graphs
-    plt.rcParams["figure.figsize"] = (8,4)
+    # Subplot the 3 graphs
     f, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
-    # First plot the graph for comparing analytical and numerical solution
+    # Plotting the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
     ax1.plot(ts, xsa, '-')
     ax1.title.set_text('Pressure Benchmark')
     ax1.set_ylabel("Pressure (kPa)")
     ax1.set_xlabel("Time (days)")
 
-    # Secondly plot the graph for absolute error term
+    # Plotting the graph for absolute error term
     ax2.plot(ts, np.absolute(xsn-xsa)/np.absolute(xsa), '-')
     ax2.title.set_text('Error Analysis')
     ax2.set_ylabel("Relative Error Against Benchmark")
     ax2.set_xlabel("Time (days)")
 
-    # Finally plot convergence testing
+    # Plotting the graph for convergence testing
     dtc = np.linspace(1, 7, 21)
     lastval = 0*dtc
     for i in range(21):
-        # compute number of Euler steps to take
+        # Compute number of Euler steps to take
         ndt = 1/dtc[i]
         ntc = int(np.ceil((t1-t0)/ndt))
         tc = t0+np.arange(ntc+1)*ndt
@@ -63,6 +63,7 @@ def pressure_benchmark():
         q2c = np.sin(tc)
         tsc, xsnc = solve_ode_pressure(pressure_ode_model, t0, t1, ndt, q1c, q2c, p0, pars1)
         lastval[i] = xsnc[-1]
+
     ax3.plot(dtc, lastval, 'o')
     ax3.title.set_text('Timestep Convergence')
     ax3.set_ylabel("X(t)")
