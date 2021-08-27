@@ -31,7 +31,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
             Derivative of dependent variable with respect to independent variable.
 
     '''
-    dPdt = -a*(1.5*q2-q1) - b*(P-P0)
+    dPdt = -a*(3*q2-q1) - b*(P-P0)
 
     return dPdt
 
@@ -72,7 +72,7 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
     else:
         Td = T0
 
-    dTdt = (q1/M0)*T - b/(a*M0) * (P-P0) * (Td-T) - bt*(T-T0)/M0
+    dTdt = (q1/M0)*T - b/(a*M0)*(P-P0)*(Td-T) - bt*(T-T0)/M0
 
     return dTdt
 
@@ -158,11 +158,19 @@ def fit_pressure(t, a, b):
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
-    _, P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291.76,[a,b,1291.76])
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291.76,[a,b,1291.76])
     return P
     
-def fit_temp(t, a, b, bt, M0, P0, q1, T0, dt):
-    t,T = solve_ode_temp(temp_ode_model, t[0], t[-1], dt, q1, T0, [a,b,bt,P0,T0,M0])
+def fit_temp(t, bt, M0):
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
+
+    a = 0.10414529 
+    b = 0.05136862
+    
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291.76,[a,b,1291.76])
+
+    _,T = solve_ode_temp(temp_ode_model,0,216,1,q1,180.698,P,[a,b,bt,1291.76,180.698,M0])
     return T
 
 def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
@@ -289,26 +297,36 @@ def plot_models():
     t0 = 0
     t1 = 216
     dt = 1
-    t = range(t0, t1, dt)
     
+    iterations = int(np.ceil((t1-t0)/dt))
+    t = t0 + np.arange(iterations+1)*dt
+
     # Initial values of pressure and temperature
     P0 = Pe[0]
     T0 = Te[0]
     
     # Initial guesses for parameters
-    a = 2.5
-    b = 1
-    bt = 500
-    M0 = 30000
+    a = 0.2
+    b = 0.1
+    bt = 0.8
+    M0 = 50000
 
     # Calling the interpolation functions for q1 and q2 arrays
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
     # Fit parameters
-    pressure,_ = curve_fit(fit_pressure, t, Pe, [a,b])
-    print(pressure)
-    #temp,_ = curve_fit(fit_temp, t, T_exp, [a,b,bt,M0,P0,q1,T0,dt])
+    Pi = np.interp(t, tPe, Pe)
+    Ti = np.interp(t, tTe, Te)
+
+    Pf,_ = curve_fit(fit_pressure, t, Pi, [a,b])
+    print(Pf)
+    a = Pf[0]
+    b = Pf[1]
+
+    Tf,_ = curve_fit(fit_temp, t, Ti, [bt,M0])
+    bt = Tf[0]
+    M0 = Tf[1]
     
     # Initialising parameter arrays
     pars_P = [a, b, P0]
