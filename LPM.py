@@ -60,7 +60,7 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
         T0 : float
             Ambient value of dependent variable, DegreesC.
         M0 : float
-            Initial mass in system, ################################
+            Initial mass in system, tonnes
 
         Returns:
         --------
@@ -224,7 +224,7 @@ def fit_temp(t, bt, M0):
         bt : float
             Temperature recharge strength parameter.
         M0 : float
-            Initial mass in system, ################################
+            Initial mass in system, tonnes
 
         Returns:
         --------
