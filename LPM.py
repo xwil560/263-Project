@@ -76,7 +76,7 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
         Td = T0
 
     #calculating the derivative for temperature
-    dTdt = (q1/M0)*T - b/(a*M0)*(P-P0)*(Td-T) - bt*(T-T0)/M0
+    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-P0)*(Td-T) - bt*(T-T0)/M0
 
     return dTdt
 
@@ -140,6 +140,10 @@ def interpolate_mass_source(t):
     data = load_data()
     #selecting the injected steam rate and time 
     tS, S = data[8], data[9]
+
+    #converting units to kg/day
+    S = S*1000
+
     #interpolating this data to find the steam injection at given times
     q1 = np.interp(t, tS, S)
 
@@ -209,7 +213,7 @@ def fit_pressure(t, a, b):
     q2 = interpolate_mass_sink(t)
 
     #solving for pressure given a and b paramater values
-    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291.76,[a,b,1291.76])
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291760,[a,b,1291760])
 
     return P
     
@@ -241,14 +245,14 @@ def fit_temp(t, bt, M0):
     q2 = interpolate_mass_sink(t)
 
     #a and b paramater values found using best fit for pressure
-    a = 0.10414529 
-    b = 0.05136862
+    a = 0.19063674#0.10414529 
+    b = 0.15012385#0.05136862
 
     #solving for pressure 
-    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291.76,[a,b,1291.76])
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291760,[a,b,1291760])
 
     #Solving for temperature at given times, to return
-    _,T = solve_ode_temp(temp_ode_model,0,216,1,q1,180.698,P,[a,b,bt,1291.76,180.698,M0])
+    _,T = solve_ode_temp(temp_ode_model,0,216,1,q1,453.848,P,[a,b,bt,1291760,453.848,M0])
     return T
 
 
@@ -380,6 +384,10 @@ def plot_models():
     data = load_data()
     tPe, Pe, tTe, Te = data[0], data[1], data[2], data[3]
 
+    #converting to SI units
+    Pe = Pe*1000
+    Te = Te + 273.15
+
     # Initialising time array
     t0 = 0
     t1 = 216
@@ -396,7 +404,7 @@ def plot_models():
     a = 0.2
     b = 0.1
     bt = 0.8
-    M0 = 50000
+    M0 = 50000000
 
     # Calling the interpolation functions for q1 and q2 arrays
     q1 = interpolate_mass_source(t)
@@ -437,8 +445,8 @@ def plot_models():
     ax2.plot(tTe, Te, 'r.', label=' Data')
 
     # Setting y limits for each axes, drawing labels and legends
-    ax1.set_ylabel('Pressure (kPa)')
-    ax2.set_ylabel('Temperature ($^{0}C$)')
+    ax1.set_ylabel('Pressure (Pa)')
+    ax2.set_ylabel('Temperature (Kelvins)')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
     ax1.legend(loc='upper right')
