@@ -32,7 +32,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
 
     '''
     #Pressure derivative calculation
-    dPdt = -a*(3*q2-q1) - b*(P-P0)
+    dPdt = -a*(q2-q1) - b*(P-P0)
 
     return dPdt
 
@@ -174,6 +174,10 @@ def interpolate_mass_sink(t):
     data = load_data()
     #selecting the water and oil production data
     tW, W, tO, O = data[4], data[5], data[6], data[7]
+
+    #converting to mass flow rate
+    W = W*999
+    O = O*1000
 
     #interpolating water and oil production rates at the given times 
     water = np.interp(t, tW, W)
