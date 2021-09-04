@@ -36,7 +36,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
 
     return dPdt
 
-def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
+def temp_ode_model(t, T, q1, q2, P, a, b, bt, P0, T0, M0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -76,7 +76,7 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
         Td = T0
 
     #calculating the derivative for temperature
-    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-P0)*(Td-T) - bt*(T-T0)/M0
+    dTdt = ((q1-q2)/M0)*(533.15-T) - (b/(a*M0))*(P-P0)*(Td-T) - bt*(T-T0)
 
     return dTdt
 
@@ -176,7 +176,7 @@ def interpolate_mass_sink(t):
     tW, W, tO, O = data[4], data[5], data[6], data[7]
 
     #converting to mass flow rate
-    W = W*999
+    W = W*1000
     O = O*1000
 
     #interpolating water and oil production rates at the given times 
@@ -217,11 +217,10 @@ def fit_pressure(t, a, b):
     q2 = interpolate_mass_sink(t)
 
     #solving for pressure given a and b paramater values
-    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291760,[a,b,1291760])
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,0.1,q1,q2,1291760,[a,b,1291760])
 
     return P
     
-
 def fit_temp(t, bt, M0):
     '''function to solve for Temperature (degC) to use for curve fit parameter estimation
 
@@ -249,16 +248,15 @@ def fit_temp(t, bt, M0):
     q2 = interpolate_mass_sink(t)
 
     #a and b paramater values found using best fit for pressure
-    a = 0.19063674#0.10414529 
-    b = 0.15012385#0.05136862
+    a = 0.18350631 
+    b = 0.09797526
 
     #solving for pressure 
-    _,P = solve_ode_pressure(pressure_ode_model,0,216,1,q1,q2,1291760,[a,b,1291760])
+    _,P = solve_ode_pressure(pressure_ode_model,0,216,0.1,q1,q2,1291760,[a,b,1291760])
 
     #Solving for temperature at given times, to return
-    _,T = solve_ode_temp(temp_ode_model,0,216,1,q1,453.848,P,[a,b,bt,1291760,453.848,M0])
+    _,T = solve_ode_temp(temp_ode_model,0,216,0.1,q1,q2,453.848,P,[a,b,bt,1291760,453.848,M0])
     return T
-
 
 def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
     ''' Solve the pressure ODE numerically.
@@ -305,13 +303,14 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
 
     #solving for pressure using improved euler method
     for i in range(iterations):
+
         k1 = f(t[i], P[i], q1[i], q2[i], *pars)
         k2 = f(t[i]+dt, P[i]+dt*k1, q1[i], q2[i], *pars)
         P[i+1] = P[i] + 0.5*dt*(k1+k2)
 
     return t, P
 
-def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
+def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
     ''' Solve the temperature ODE numerically.
 
         Parameters:
@@ -355,8 +354,8 @@ def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
     #Solving for temperature on each day using improved euler method.
     for i in range(iterations):
 
-        k1 = f(t[i], T[i], q1[i], P[i], *pars)
-        k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], P[i], *pars)
+        k1 = f(t[i], T[i], q1[i], q2[i], P[i], *pars)
+        k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], q2[i], P[i], *pars)
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
         
     return t, T
@@ -390,12 +389,12 @@ def plot_models():
 
     #converting to SI units
     Pe = Pe*1000
-    Te = Te + 273.15
+    Te = Te+273.15
 
     # Initialising time array
     t0 = 0
     t1 = 216
-    dt = 1
+    dt = 0.1
     
     iterations = int(np.ceil((t1-t0)/dt))
     t = t0 + np.arange(iterations+1)*dt
@@ -407,8 +406,8 @@ def plot_models():
     # Initial guesses for parameters
     a = 0.2
     b = 0.1
-    bt = 0.8
-    M0 = 50000000
+    bt = 0.05
+    M0 = 8000000
 
     # Calling the interpolation functions for q1 and q2 arrays
     q1 = interpolate_mass_source(t)
@@ -420,7 +419,6 @@ def plot_models():
 
     #using curvefit to find optimum a and b values for pressure LPM
     Pf,_ = curve_fit(fit_pressure, t, Pi, [a,b])
-    print(Pf)
     a = Pf[0]
     b = Pf[1]
 
@@ -435,22 +433,21 @@ def plot_models():
 
     #final solve for temperature and pressure over time using best fit paramaters
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
-    tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars_T)
-
+    tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, q2, T0, P, pars_T)
 
     plt.rcParams["figure.figsize"] = (9, 6)
     f, ax1 = plt.subplots(1, 1) # Creating plot figure and axes
     ax2 = ax1.twinx() # Creating separate axis
 
     #plotting our LMPs and the given data
-    ax1.plot(tP, P, 'k-', label='Pressure Best Fit')
-    ax1.plot(tPe, Pe, 'k.', label='Data')
-    ax2.plot(tT, T, 'r-', label='Temperature Best Fit')
-    ax2.plot(tTe, Te, 'r.', label=' Data')
+    ax1.plot(tP, P/1000, 'k-', label='Pressure Best Fit')
+    ax1.plot(tPe, Pe/1000, 'k.', label='Data')
+    ax2.plot(tT, T-273.15, 'r-', label='Temperature Best Fit')
+    ax2.plot(tTe, Te-273.15, 'r.', label=' Data')
 
     # Setting y limits for each axes, drawing labels and legends
-    ax1.set_ylabel('Pressure (Pa)')
-    ax2.set_ylabel('Temperature (Kelvins)')
+    ax1.set_ylabel('Pressure (kPa)')
+    ax2.set_ylabel('Temperature ($^{0}C$)')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
     ax1.legend(loc='upper right')
@@ -459,7 +456,7 @@ def plot_models():
     # Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
     save_figure = False
-
+    
     if not save_figure:
         plt.show()
     else:
