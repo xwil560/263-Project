@@ -511,12 +511,19 @@ def temp_prediction():
     t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, q2, T0, P250, pars_T)
     t500, T500 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_500, q2, T0, P500, pars_T)
     t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, q2, T0, P1000, pars_T)
+
+    # Limit of 240 degrees for dissociation of contaminants
+    tlim = np.concatenate((t,tp))
+    lim = np.full(len(tlim),240)
+    
     
     f, ax1 = plt.subplots(1, 1) # Creating plot figure and axes
 
     # Plotting our LMPs and the given data
     ax1.plot(t, T-273.15, 'k-', label='Temperature Best Fit')
     ax1.plot(te, Te-273.15, 'k.', label='Data')
+
+    ax1.plot(tlim, lim, 'k--', label='Temperature Limit')
 
     ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
     ax1.plot(t250, T250-273.15, 'r-', label='250 tonnes/day')
