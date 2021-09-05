@@ -518,10 +518,10 @@ def temp_prediction():
     ax1.plot(t, T-273.15, 'k-', label='Temperature Best Fit')
     ax1.plot(te, Te-273.15, 'k.', label='Data')
 
-    ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes per day')
-    ax1.plot(t250, T250-273.15, 'r-', label='250 tonnes per day')
-    ax1.plot(t500, T500-273.15, 'r-', label='500 tonnes per day')
-    ax1.plot(t1000, T1000-273.15, 'r-', label='1000 tonnes per day')
+    ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
+    ax1.plot(t250, T250-273.15, 'r-', label='250 tonnes/day')
+    ax1.plot(t500, T500-273.15, 'r-', label='500 tonnes/day')
+    ax1.plot(t1000, T1000-273.15, 'r-', label='1000 tonnes/day')
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
