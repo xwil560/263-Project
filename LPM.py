@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import os
 from scipy.optimize import curve_fit
 
+
 def pressure_ode_model(t, P, q1, q2, a, b, Pa):
     ''' Return the derivative dP/dt at time, t(days), for given parameters.
 
@@ -36,6 +37,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, Pa):
     dPdt = -a*(q2-q1) - b*(P-Pa)
 
     return dPdt
+
 
 def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
@@ -69,9 +71,9 @@ def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
             Derivative of dependent variable with respect to independent variable. degreesC/day
 
     '''
-    # Checking direction of flow to determine temperature 
+    # Checking direction of flow to determine temperature
     if P > Pa:
-        Td = T 
+        Td = T
     else:
         Td = Ta
 
@@ -79,6 +81,7 @@ def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
     dTdt = ((q1-q2)/M0)*(533.15-T) - (b/(a*M0))*(P-Pa)*(Td-T) - bt*(T-Ta)
 
     return dTdt
+
 
 def load_data():
     ''' read in and return the pilot data for the system
@@ -94,25 +97,26 @@ def load_data():
             and the corresponding times for these data points.
     '''
     # Pressure data
-    tP = np.genfromtxt('tr_p.txt',skip_header=1,usecols=0,delimiter=',')
-    P = np.genfromtxt('tr_p.txt',skip_header=1,usecols=1,delimiter=',')
+    tP = np.genfromtxt('tr_p.txt', skip_header=1, usecols=0, delimiter=',')
+    P = np.genfromtxt('tr_p.txt', skip_header=1, usecols=1, delimiter=',')
     # Temperature data
-    tT = np.genfromtxt('tr_T.txt',skip_header=1,usecols=0,delimiter=',')
-    T = np.genfromtxt('tr_T.txt',skip_header=1,usecols=1,delimiter=',')
+    tT = np.genfromtxt('tr_T.txt', skip_header=1, usecols=0, delimiter=',')
+    T = np.genfromtxt('tr_T.txt', skip_header=1, usecols=1, delimiter=',')
     # Water production data
-    tW = np.genfromtxt('tr_water.txt',skip_header=1,usecols=0,delimiter=',')
-    W = np.genfromtxt('tr_water.txt',skip_header=1,usecols=1,delimiter=',')
+    tW = np.genfromtxt('tr_water.txt', skip_header=1, usecols=0, delimiter=',')
+    W = np.genfromtxt('tr_water.txt', skip_header=1, usecols=1, delimiter=',')
     # Oil production data
-    tO = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=0,delimiter=',')
-    O = np.genfromtxt('tr_oil.txt',skip_header=1,usecols=1,delimiter=',')
+    tO = np.genfromtxt('tr_oil.txt', skip_header=1, usecols=0, delimiter=',')
+    O = np.genfromtxt('tr_oil.txt', skip_header=1, usecols=1, delimiter=',')
     # Steam injection data
-    tS = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=0,delimiter=',')
-    S = np.genfromtxt('tr_steam.txt',skip_header=1,usecols=1,delimiter=',')
+    tS = np.genfromtxt('tr_steam.txt', skip_header=1, usecols=0, delimiter=',')
+    S = np.genfromtxt('tr_steam.txt', skip_header=1, usecols=1, delimiter=',')
 
     # Combining the data into a list to return
     data = [tP, P, tT, T, tW, W, tO, O, tS, S]
 
     return data
+
 
 def interpolate_mass_source(t):
     ''' Return mass source parameter q1 for steam injection.
@@ -137,7 +141,7 @@ def interpolate_mass_source(t):
 
     # Reading in observed data
     data = load_data()
-    # Selecting the injected steam rate and time 
+    # Selecting the injected steam rate and time
     tS, S = data[8], data[9]
 
     # Converting units to kg/day
@@ -147,6 +151,7 @@ def interpolate_mass_source(t):
     q1 = np.interp(t, tS, S)
 
     return q1
+
 
 def interpolate_mass_sink(t):
     ''' Return mass sink parameter q2 for water and oil retrieval.
@@ -178,14 +183,15 @@ def interpolate_mass_sink(t):
     W = W*1000
     O = O*1000
 
-    # Interpolating water and oil production rates at the given times 
+    # Interpolating water and oil production rates at the given times
     water = np.interp(t, tW, W)
     oil = np.interp(t, tO, O)
 
-    # Combining the two sink rates into one total mass sink rate 
+    # Combining the two sink rates into one total mass sink rate
     q2 = water + oil
 
     return q2
+
 
 def fit_pressure(t, a, b):
     '''function to solve for pressure (kPa) to use for curve fit parameter estimation
@@ -203,22 +209,24 @@ def fit_pressure(t, a, b):
         --------
         P : array-like
             pressure values of system at given times using these paramaters
-        
+
 
         Notes:
         ------
         Data interpolation can only be used between 0 - 221 days.
 
     '''
-    # Finding souce and sink values at given times 
+    # Finding souce and sink values at given times
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
     # Solving for pressure given a and b paramater values
-    _,P = solve_ode_pressure(pressure_ode_model,0,221,1,q1,q2,1291760,[a,b,1291760])
+    _, P = solve_ode_pressure(pressure_ode_model, 0,
+                              221, 1, q1, q2, 1291760, [a, b, 1291760])
 
     return P
-    
+
+
 def fit_temp(t, bt, M0):
     '''function to solve for Temperature (degC) to use for curve fit parameter estimation
 
@@ -246,16 +254,19 @@ def fit_temp(t, bt, M0):
     q2 = interpolate_mass_sink(t)
 
     # Paramater values found using best fit for pressure
-    a = 0.18350631 
+    a = 0.18350631
     b = 0.09797526
 
-    # Solving for pressure 
-    _,P = solve_ode_pressure(pressure_ode_model,0,221,1,q1,q2,1291760,[a,b,1291760])
+    # Solving for pressure
+    _, P = solve_ode_pressure(pressure_ode_model, 0,
+                              221, 1, q1, q2, 1291760, [a, b, 1291760])
 
     # Solving for temperature at given times to return
-    _,T = solve_ode_temp(temp_ode_model,0,221,1,q1,q2,453.848,P,[a,b,bt,1291760,453.848,M0])
+    _, T = solve_ode_temp(temp_ode_model, 0, 221, 1, q1, q2, 453.848, P, [
+                          a, b, bt, 1291760, 453.848, M0])
 
     return T
+
 
 def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
     ''' Solve the pressure ODE numerically.
@@ -298,7 +309,7 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
 
     # Creating array of system pressure at each time in t
     P = 0.*t
-    P[0] = P0 # Setting initial pressure value
+    P[0] = P0  # Setting initial pressure value
 
     # Solving for pressure using improved euler method
     for i in range(iterations):
@@ -308,6 +319,7 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
         P[i+1] = P[i] + 0.5*dt*(k1+k2)
 
     return t, P
+
 
 def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
     ''' Solve the temperature ODE numerically.
@@ -356,8 +368,9 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
         k1 = f(t[i], T[i], q1[i], q2[i], P[i], *pars)
         k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], q2[i], P[i], *pars)
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
-        
+
     return t, T
+
 
 def plot_models():
     ''' Plot the two pressure and temperature LPMs over top of the observed data.
@@ -400,11 +413,10 @@ def plot_models():
     # Initial values of pressure and temperature
     P0 = Pe[0]
     T0 = Te[0]
-    
-    #ambient pressure and temp
+
+    # ambient pressure and temp
     Pa = 1291760
     Ta = 453.848
-
 
     # Initial guesses for parameters
     a = 0.2
@@ -421,28 +433,29 @@ def plot_models():
     Ti = np.interp(t, tTe, Te)
 
     # Using curvefit to find optimum a and b values for pressure LPM
-    Pf,_ = curve_fit(fit_pressure, t, Pi, [a,b])
+    Pf, _ = curve_fit(fit_pressure, t, Pi, [a, b])
     a = Pf[0]
     b = Pf[1]
     print(Pf)
 
     # Using curvefit to find optimum b and initial mass values for temperautre LMP
-    Tf,_ = curve_fit(fit_temp, t, Ti, [bt,M0])
+    Tf, _ = curve_fit(fit_temp, t, Ti, [bt, M0])
     bt = Tf[0]
     M0 = Tf[1]
     print(Tf)
-    
+
     # Initialising parameter arrays
     pars_P = [a, b, Pa]
     pars_T = [a, b, bt, Pa, Ta, M0]
 
     # Final solve for temperature and pressure over time using best fit paramaters
-    tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
+    tP, P = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
     tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, q2, T0, P, pars_T)
 
     plt.rcParams["figure.figsize"] = (9, 6)
-    f, ax1 = plt.subplots(1, 1) # Creating plot figure and axes
-    ax2 = ax1.twinx() # Creating separate axis
+    f, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
+    ax2 = ax1.twinx()  # Creating separate axis
 
     # Plotting our LMPs and the given data
     ax1.plot(tP, P/1000, 'k-', label='Pressure Best Fit')
@@ -461,7 +474,7 @@ def plot_models():
     # Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
     save_figure = False
-    
+
     if not save_figure:
         plt.show()
     else:
@@ -479,7 +492,7 @@ def temp_prediction():
     temp_data = plot_models()
     t, T, te, Te, T0, P0 = temp_data[0], temp_data[1], temp_data[2], temp_data[3], temp_data[4], temp_data[5]
 
-    #Ambient values
+    # Ambient values
     Pa = 1291760
     Ta = 453.848
 
@@ -491,50 +504,49 @@ def temp_prediction():
     tp = t0 + np.arange(iterations+1)*dt
 
     # Calling the interpolation functions for q1 and q2 arrays
-    q1_0 = np.full(len(tp),0)
-    
-    q1_250 = np.full(60,250000)
-    q1_250 = np.append(q1_250,np.full(90,0))
-    q1_250 = np.append(q1_250,np.full(60,250000))
-    q1_250 =  np.append(q1_250,np.full(90,0))
-   
-    q1_500 = np.full(60,500000)
-    q1_500 = np.append(q1_250,np.full(90,0))
-    q1_500 = np.append(q1_250,np.full(60,500000))
-    q1_500 =  np.append(q1_250,np.full(90,0))
-    
-    q1_1000 = np.full(60,1000000)
-    q1_1000 = np.append(q1_1000,np.full(90,0))
-    q1_1000 = np.append(q1_1000,np.full(60,1000000))
-    q1_1000 =  np.append(q1_1000,np.full(90,0))
-    
+    q1_0 = np.full(len(tp), 0)
+
+    q1_250 = np.full(60, 250000)
+    q1_250 = np.append(q1_250, np.full(90, 0))
+    q1_250 = np.append(q1_250, np.full(60, 250000))
+    q1_250 = np.append(q1_250, np.full(90, 0))
+
+    q1_500 = np.full(60, 500000)
+    q1_500 = np.append(q1_250, np.full(90, 0))
+    q1_500 = np.append(q1_250, np.full(60, 500000))
+    q1_500 = np.append(q1_250, np.full(90, 0))
+
+    q1_1000 = np.full(60, 1000000)
+    q1_1000 = np.append(q1_1000, np.full(90, 0))
+    q1_1000 = np.append(q1_1000, np.full(60, 1000000))
+    q1_1000 = np.append(q1_1000, np.full(90, 0))
+
     q2 = interpolate_mass_sink(t)
 
-    q2_0 = np.full(60,0)
-    q2_0 = np.append(q2_0,np.full(90,min(q2)))
-    q2_0 = np.append(q2_0,np.full(60,0))
-    q2_0 = np.append(q2_0,np.full(90,min(q2)))
+    q2_0 = np.full(60, 0)
+    q2_0 = np.append(q2_0, np.full(90, min(q2)))
+    q2_0 = np.append(q2_0, np.full(60, 0))
+    q2_0 = np.append(q2_0, np.full(90, min(q2)))
 
-    q2_250 = np.full(60,0)
-    q2_250 = np.append(q2_250,np.full(90,(max(q2)/2)))
-    q2_250 = np.append(q2_250, np.full(60,0))
-    q2_250 = np.append(q2_250,np.full(90,(max(q2)/2)))
+    q2_250 = np.full(60, 0)
+    q2_250 = np.append(q2_250, np.full(90, (max(q2)/2)))
+    q2_250 = np.append(q2_250, np.full(60, 0))
+    q2_250 = np.append(q2_250, np.full(90, (max(q2)/2)))
 
-    q2_500 = np.full(60,0)
-    q2_500 = np.append(q2_500,np.full(90,max(q2)))
-    q2_500 = np.append(q2_500,np.full(60,0))
-    q2_500 = np.append(q2_500,np.full(90,max(q2)))
+    q2_500 = np.full(60, 0)
+    q2_500 = np.append(q2_500, np.full(90, max(q2)))
+    q2_500 = np.append(q2_500, np.full(60, 0))
+    q2_500 = np.append(q2_500, np.full(90, max(q2)))
 
-    q2_1000 = np.full(60,0)
-    q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
-    q2_1000 = np.append(q2_1000,np.full(60,0))
-    q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
-    
+    q2_1000 = np.full(60, 0)
+    q2_1000 = np.append(q2_1000, np.full(90, max(q2)*2))
+    q2_1000 = np.append(q2_1000, np.full(60, 0))
+    q2_1000 = np.append(q2_1000, np.full(90, max(q2)*2))
 
     # Fitted parameters
     a = 0.18903839
     b = 0.09930478
-    bt = 5.53677820e-02 
+    bt = 5.53677820e-02
     M0 = 7.96210114e+06
 
     # Initialising parameter arrays
@@ -542,22 +554,29 @@ def temp_prediction():
     pars_T = [a, b, bt, Pa, Ta, M0]
 
     # Forecasts for different levels of steam injection
-    _, Pzero = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
-    _, P250 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
-    _, P500 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_500, q2_500, P0, pars_P)
-    _, P1000 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
+    _, Pzero = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
+    _, P250 = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
+    _, P500 = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1_500, q2_500, P0, pars_P)
+    _, P1000 = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
 
-    tzero, Tzero = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_0, q2_0, T0, Pzero, pars_T)
-    t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, q2_250, T0, P250, pars_T)
-    t500, T500 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_500, q2_500, T0, P500, pars_T)
-    t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, q2_1000, T0, P1000, pars_T)
+    tzero, Tzero = solve_ode_temp(
+        temp_ode_model, t0, t1, dt, q1_0, q2_0, T0, Pzero, pars_T)
+    t250, T250 = solve_ode_temp(
+        temp_ode_model, t0, t1, dt, q1_250, q2_250, T0, P250, pars_T)
+    t500, T500 = solve_ode_temp(
+        temp_ode_model, t0, t1, dt, q1_500, q2_500, T0, P500, pars_T)
+    t1000, T1000 = solve_ode_temp(
+        temp_ode_model, t0, t1, dt, q1_1000, q2_1000, T0, P1000, pars_T)
 
     # Limit of 240 degrees for dissociation of contaminants
-    tlim = np.concatenate((t,tp))
-    lim = np.full(len(tlim),240)
-    
-      
-    f, ax1 = plt.subplots(1, 1) # Creating plot figure and axes
+    tlim = np.concatenate((t, tp))
+    lim = np.full(len(tlim), 240)
+
+    f, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
 
     # Plotting our LMPs and the given data
     ax1.plot(t, T-273.15, 'k-', label='Temperature Best Fit')
