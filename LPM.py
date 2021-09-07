@@ -530,26 +530,33 @@ def temp_prediction():
     # Limit of 240 degrees for dissociation of contaminants
     tlim = np.concatenate((t,tp))
     lim = np.full(len(tlim),240)
-    
-    plt.rcParams["figure.figsize"] = (10, 7)
-    f, ax1 = plt.subplots(1, 1) # Creating plot figure and axes
+
+    # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (11, 7)
+    plt.rcParams["legend.title_fontsize"] = 'medium'
+    f, ax1 = plt.subplots(1, 1) 
 
     # Plotting our LMPs and the given data
-    ax1.plot(t, T-273.15, 'k-', label='Temperature Best Fit')
-    ax1.plot(te, Te-273.15, 'k.', label='Data')
+    a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit')
+    b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
+    c, = ax1.plot(tlim, lim, 'k--', label='Temperature Limit')
 
-    ax1.plot(tlim, lim, 'k--', label='Temperature Limit')
-
-    ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
-    ax1.plot(t250, T250-273.15, 'b-', label='250 tonnes/day')
-    ax1.plot(t460, T460-273.15, 'k-', label='460 tonnes/day')
-    ax1.plot(t1000, T1000-273.15, 'g-', label='1000 tonnes/day')
+    d, = ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
+    e, = ax1.plot(t250, T250-273.15, 'b-', label='250 tonnes/day')
+    f, = ax1.plot(t460, T460-273.15, 'k-', label='460 tonnes/day')
+    g, = ax1.plot(t1000, T1000-273.15, 'g-', label='1000 tonnes/day')
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Temperature Forecast')
-    ax1.legend(loc='lower left')
+
+    # Create two separate legends for past and forecast data
+    first_legend = plt.legend(handles=[a,b], title="Historical Model", loc='upper left')
+    second_legend = plt.legend(handles=[c], loc='upper right')
+    plt.legend(handles=[d,e,f,g], title="Forecast Models", loc='lower left')
+    ax = plt.gca().add_artist(first_legend)
+    ax = plt.gca().add_artist(second_legend)
 
     plt.show()
 
