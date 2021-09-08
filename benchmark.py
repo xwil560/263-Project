@@ -1,7 +1,7 @@
 # imports
 import numpy as np
 from matplotlib import pyplot as plt
-from LPM import *
+from main import *
 
 
 def pressure_benchmark():
