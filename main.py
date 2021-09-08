@@ -476,34 +476,46 @@ def temp_prediction():
 
     # Allocating time arrays
     t0 = 221
-    t1 = 371
+    t1 = 521
     dt = 1
     iterations = int(np.ceil((t1-t0)/dt))
     tp = t0 + np.arange(iterations+1)*dt
 
     # Calling the interpolation functions for q1 and q2 arrays
-    q1_0 = np.full(150,0)
+    q1_0 = np.full(300,0)
     
     q1_250 = np.full(60,250000)
+    q1_250 = np.append(q1_250,np.full(90,0))
+    q1_250 = np.append(q1_250,np.full(60,250000))
     q1_250 = np.append(q1_250,np.full(90,0))
    
     q1_460 = np.full(60,460000)
     q1_460 = np.append(q1_460,np.full(90,0))
+    q1_460 = np.append(q1_460,np.full(60,460000))
+    q1_460 = np.append(q1_460,np.full(90,0))
     
     q1_1000 = np.full(60,1000000)
+    q1_1000 = np.append(q1_1000,np.full(90,0))
+    q1_1000 = np.append(q1_1000,np.full(60,1000000))
     q1_1000 = np.append(q1_1000,np.full(90,0))
     
     q2 = interpolate_mass_sink(t)
 
-    q2_0 = np.full(150,0)
+    q2_0 = np.full(300,0)
 
     q2_250 = np.full(60,0)
+    q2_250 = np.append(q2_250,np.full(90,(max(q2)/2)))
+    q2_250 = np.append(q2_250,np.full(60,0))
     q2_250 = np.append(q2_250,np.full(90,(max(q2)/2)))
 
     q2_460 = np.full(60,0)
     q2_460 = np.append(q2_460,np.full(90,max(q2)))
+    q2_460 = np.append(q2_460,np.full(60,0))
+    q2_460 = np.append(q2_460,np.full(90,max(q2)))
 
     q2_1000 = np.full(60,0)
+    q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
+    q2_1000 = np.append(q2_1000,np.full(60,0))
     q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
 
     # Fitted parameters
