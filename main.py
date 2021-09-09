@@ -7,7 +7,7 @@ import os
 from scipy.optimize import curve_fit
 
 
-def pressure_ode_model(t, P, q1, q2, a, b, P0):
+def pressure_ode_model(t, P, q1, q2, a, b, Pa):
     ''' Return the derivative dP/dt at time, t(days), for given parameters.
 
         Parameters:
@@ -17,14 +17,14 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
         P : float
             Dependent variable, Pa
         q1 : float
-            Mass source rate of steam injection, tonnes/day
+            Mass source rate of steam injection, kg/day
         q2 : float
-            Mass sink rate of oil and water, m^3/day
+            Mass sink rate of oil and water, kg/day
         a : float
             Source/sink strength parameter.
         b : float
             Recharge strength parameter.
-        P0 : float
+        Pa : float
             Ambient value of dependent variable, Pa.
 
         Returns:
@@ -34,12 +34,12 @@ def pressure_ode_model(t, P, q1, q2, a, b, P0):
 
     '''
     # Calculating the derivative for pressure
-    dPdt = -a*(q2-q1) - b*(1.75*P-P0)
+    dPdt = -a*(q2-q1) - b*(1.75*P-Pa)
 
     return dPdt
 
 
-def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
+def temp_ode_model(t, T, q1, P, a, b, bt, Pa, Ta, M0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -49,39 +49,39 @@ def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
         T : float
             Dependent variable, degreesC
         q1 : float
-            Mass source rate of steam injection, tonnes/day
+            Mass source rate of steam injection, kg/day
         P : float
-            Pressure variable, kPa.
+            Pressure variable, Pa.
         a : float
             Source/sink strength parameter.
         b : float
             Pressure recharge strength parameter.
         bt : float
             Temperature recharge strength parameter.
-        P0 : float
+        Pa : float
             Ambient value of solved dependent variable, Pa.
-        T0 : float
-            Ambient value of dependent variable, DegreesC.
+        Ta : float
+            Ambient value of dependent variable, Kelvins.
         M0 : float
-            Initial mass in system, tonnes
+            Initial mass in system, kgs.
 
         Returns:
         --------
         dTdt : float
-            Derivative of dependent variable with respect to independent variable, DegreesC/day
+            Derivative of dependent variable with respect to independent variable, Kelvins/day
 
     '''
     if M0 == 0 or a == 0:
         return T
 
     # Checking direction of flow to determine temperature
-    if P > P0:
+    if P > Pa:
         Td = T
     else:
-        Td = T0
+        Td = Ta
 
     # Calculating the derivative for temperature
-    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-P0)*(Td-3*T) - bt*(T-T0)
+    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-Pa)*(Td-3*T) - bt*(T-Ta)
 
     return dTdt
 
@@ -132,7 +132,7 @@ def interpolate_mass_source(t):
         Returns:
         --------
         q1 : array-like
-            Mass source of steam injection (tonnes per day) interpolated at t.
+            Mass source of steam injection (kg per day) interpolated at t.
 
         Notes:
         ------
@@ -164,7 +164,7 @@ def interpolate_mass_sink(t):
         Returns:
         --------
         q : array-like
-            Mass sink rate of water and oil (m^3 per day) interpolated at t.
+            Mass sink rate of water and oil (kg per day) interpolated at t.
 
         Notes:
         ------
@@ -232,7 +232,7 @@ def fit_temp(t, bt, M0):
         bt : float
             Temperature recharge strength parameter.
         M0 : float
-            Initial mass in system, tonnes
+            Initial mass in system, kg
 
         Returns:
         --------
@@ -275,11 +275,11 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
         dt : float
             Time step length.
         q1: array-like
-            Steam injection mass rates (tonnes per day)
+            Steam injection mass rates (kg per day)
         q2: array-like
-            Water and oil extraction rates (m^3)
+            Water and oil extraction rates (kg/day)
         P0 : float
-            Initial value of solution, kPa.
+            Initial value of solution, Pa.
         pars : array-like
             List of parameters passed to ODE function f.
 
@@ -288,7 +288,7 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
         t : array-like
             Independent variable solution vector (days).
         P : array-like
-            Dependent variable solution vector, kPa.
+            Dependent variable solution vector, Pa.
 
         Notes:
         ------
@@ -335,11 +335,11 @@ def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
         dt : float
             Time step length, days.
         q1: array-like
-            Steam injection mass rates (tonnes per day)
+            Steam injection mass rates (kg per day)
         T0 : float
-            Initial value of solution, degC.
+            Initial value of solution, Kelvins.
         P : Array-like
-            Array of values of previously solved P, kPa.
+            Array of values of previously solved P, Pa.
         pars : array-like
             List of parameters passed to ODE function f.
 
@@ -348,7 +348,7 @@ def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
         t : array-like
             Independent variable solution vector, days.
         T : array-like
-            Dependent variable solution vector, degC.
+            Dependent variable solution vector, Kelvins.
 
     '''
     if dt == 0:
@@ -415,6 +415,10 @@ def formulate_models():
     P0 = Pe[0]
     T0 = Te[0]
 
+    #ambient pressure and temperature values 
+    Pa = 1291760
+    Ta = 453.848
+
     # Initial guesses for parameters
     a = 0.15
     b = 0.02
@@ -440,8 +444,8 @@ def formulate_models():
     M0 = Tf[1]
 
     # Initialising parameter arrays
-    pars_P = [a, b, P0]
-    pars_T = [a, b, bt, P0, T0, M0]
+    pars_P = [a, b, Pa]
+    pars_T = [a, b, bt, Pa, Ta, M0]
 
     # Final solve for temperature and pressure over time using best fit paramaters
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
@@ -491,6 +495,8 @@ def temp_forecast():
     # Creating data containing variables necessary for temperature prediction
     data = formulate_models()
     t, P, T, te, Te  = data[0], data[3], data[6], data[7], data[8], 
+    Pa = 1291760
+    Ta = 453.848
 
     # Setting initial temperature and pressure values
     T0 = T[-1]
@@ -548,8 +554,8 @@ def temp_forecast():
     M0 = 4.45931451e+06
 
     # Initialising parameter arrays
-    pars_P = [a, b, P0]
-    pars_T = [a, b, bt, P0, T0, M0]
+    pars_P = [a, b, Pa]
+    pars_T = [a, b, bt, Pa, Ta, M0]
 
     # Forecasts for different levels of steam injection
     _, Pzero = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
