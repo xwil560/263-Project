@@ -7,7 +7,7 @@ import os
 from scipy.optimize import curve_fit
 
 
-def pressure_ode_model(t, P, q1, q2, a, b, Pa):
+def pressure_ode_model(t, P, q1, q2, a, b, P0):
     ''' Return the derivative dP/dt at time, t(days), for given parameters.
 
         Parameters:
@@ -15,7 +15,7 @@ def pressure_ode_model(t, P, q1, q2, a, b, Pa):
         t : float
             Independent variable, days
         P : float
-            Dependent variable, kPa
+            Dependent variable, Pa
         q1 : float
             Mass source rate of steam injection, tonnes/day
         q2 : float
@@ -24,8 +24,8 @@ def pressure_ode_model(t, P, q1, q2, a, b, Pa):
             Source/sink strength parameter.
         b : float
             Recharge strength parameter.
-        Pa : float
-            Ambient value of dependent variable, kPa.
+        P0 : float
+            Ambient value of dependent variable, Pa.
 
         Returns:
         --------
@@ -34,12 +34,12 @@ def pressure_ode_model(t, P, q1, q2, a, b, Pa):
 
     '''
     # Calculating the derivative for pressure
-    dPdt = -a*(q2-q1) - b*(1.75*P-Pa)
+    dPdt = -a*(q2-q1) - b*(1.75*P-P0)
 
     return dPdt
 
 
-def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
+def temp_ode_model(t, T, q1, P, a, b, bt, P0, T0, M0):
     ''' Return the derivative dP/dt at time, t, for given parameters.
 
         Parameters:
@@ -58,9 +58,9 @@ def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
             Pressure recharge strength parameter.
         bt : float
             Temperature recharge strength parameter.
-        Pa : float
-            Ambient value of solved dependent variable, kPa.
-        Ta : float
+        P0 : float
+            Ambient value of solved dependent variable, Pa.
+        T0 : float
             Ambient value of dependent variable, DegreesC.
         M0 : float
             Initial mass in system, tonnes
@@ -68,20 +68,20 @@ def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
         Returns:
         --------
         dTdt : float
-            Derivative of dependent variable with respect to independent variable. degreesC/day
+            Derivative of dependent variable with respect to independent variable, DegreesC/day
 
     '''
     if M0 == 0 or a == 0:
         return T
 
     # Checking direction of flow to determine temperature
-    if P > Pa:
+    if P > P0:
         Td = T
     else:
-        Td = Ta
+        Td = T0
 
     # Calculating the derivative for temperature
-    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-Pa)*(Td-3*T) - bt*(T-Ta)
+    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-P0)*(Td-3*T) - bt*(T-T0)
 
     return dTdt
 
@@ -256,7 +256,7 @@ def fit_temp(t, bt, M0):
     _, P = solve_ode_pressure(pressure_ode_model, 0, 221, 1, q1, q2, 1291760, [a,b,1291760])
 
     # Solving for temperature at given times to return
-    _, T = solve_ode_temp(temp_ode_model, 0, 221, 1, q1, q2, 453.848, P, [a,b,bt,1291760,453.848,M0])
+    _, T = solve_ode_temp(temp_ode_model, 0, 221, 1, q1, 453.848, P, [a,b,bt,1291760,453.848,M0])
 
     return T
 
@@ -321,7 +321,7 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
     return t, P
 
 
-def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
+def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
     ''' Solve the temperature ODE numerically.
 
         Parameters:
@@ -336,8 +336,6 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
             Time step length, days.
         q1: array-like
             Steam injection mass rates (tonnes per day)
-        q2: array-like
-            Water and oil extraction rates (m^3)
         T0 : float
             Initial value of solution, degC.
         P : Array-like
@@ -372,8 +370,8 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
     # Solving for temperature on each day using improved euler method.
     for i in range(iterations):
 
-        k1 = f(t[i], T[i], q1[i], q2[i], P[i], *pars)
-        k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], q2[i], P[i], *pars)
+        k1 = f(t[i], T[i], q1[i], P[i], *pars)
+        k2 = f(t[i]+dt, T[i]+dt*k1, q1[i], P[i], *pars)
         T[i+1] = T[i] + 0.5*dt*(k1+k2)
 
     return t, T
@@ -447,7 +445,7 @@ def formulate_models():
 
     # Final solve for temperature and pressure over time using best fit paramaters
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
-    tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, q2, T0, P, pars_T)
+    tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars_T)
 
     return t, tP, P, tPe, Pe, tT, T, tTe, Te
 
@@ -559,10 +557,10 @@ def temp_forecast():
     _, P500 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_460, q2_460, P0, pars_P)
     _, P1000 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
 
-    tzero, Tzero = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_0, q2_0, T0, Pzero, pars_T)
-    t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, q2_250, T0, P250, pars_T)
-    t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, q2_460, T0, P500, pars_T)
-    t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, q2_1000, T0, P1000, pars_T)
+    tzero, Tzero = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_0, T0, Pzero, pars_T)
+    t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, T0, P250, pars_T)
+    t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
+    t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
 
     # Limit of 240 degrees for dissociation of contaminants
     tlim = np.concatenate((t,tp))
@@ -570,7 +568,6 @@ def temp_forecast():
 
     # Creating plot figure and axes
     plt.rcParams["figure.figsize"] = (11, 7)
-    plt.rcParams["legend.title_fontsize"] = 'medium'
     f, ax1 = plt.subplots(1, 1) 
 
     # Plotting our LMPs and the given data

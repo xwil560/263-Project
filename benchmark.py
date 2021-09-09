@@ -36,8 +36,9 @@ def pressure_benchmark():
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = -3*np.exp(-t)-np.sin(t)+np.cos(t)+3
 
-    # Subplot the 3 graphs
-    f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (15, 5)
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
     # Plotting the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
@@ -55,6 +56,7 @@ def pressure_benchmark():
     # Plotting the graph for convergence testing
     dtc = np.linspace(1, 7, 21)
     lastval = 0*dtc
+
     for i in range(21):
         # Compute number of Euler steps to take
         ndt = 1/dtc[i]
@@ -143,7 +145,7 @@ def temperature_benchmark():
     # The ode model is 0.15T-37.5
     pars2 = [a1, b, bt, p0, T0, M0]
     # solve the ode numerically
-    ts, xsn = solve_ode_temp(temp_model, t0, t1, dt, q1, q2, T0, P, pars2)
+    ts, xsn = solve_ode_temp(temp_model, t0, t1, dt, q1, T0, P, pars2)
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = 275*np.exp(-0.15*t)-250
 
