@@ -422,8 +422,8 @@ def formulate_models():
     # Initial guesses for parameters
     a = 0.15
     b = 0.02
-    bt = 0.05
-    M0 = 8000000
+    bt = 0.9
+    M0 = 4000000
 
     # Calling the interpolation functions for q1 and q2 arrays
     q1 = interpolate_mass_source(t)
@@ -604,4 +604,4 @@ def temp_forecast():
 
 
 if __name__ == "__main__":
-    temp_forecast()
+    plot_models()
