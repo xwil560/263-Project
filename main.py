@@ -71,6 +71,9 @@ def temp_ode_model(t, T, q1, q2, P, a, b, bt, Pa, Ta, M0):
             Derivative of dependent variable with respect to independent variable. degreesC/day
 
     '''
+    if M0 == 0 or a == 0:
+        return T
+
     # Checking direction of flow to determine temperature
     if P > Pa:
         Td = T
@@ -274,6 +277,10 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
             Final time of solution, (day).
         dt : float
             Time step length.
+        q1: array-like
+            Steam injection mass rates (tonnes per day)
+        q2: array-like
+            Water and oil extraction rates (m^3)
         P0 : float
             Initial value of solution, kPa.
         pars : array-like
@@ -291,6 +298,9 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
         ODE is solved using the Improved Euler Method.
 
     '''
+    if dt == 0:
+        return t0, P0
+
     # Number of iterations needed
     iterations = int(np.ceil((t1-t0)/dt))
 
@@ -327,6 +337,10 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
             Final time of solution, days.
         dt : float
             Time step length, days.
+        q1: array-like
+            Steam injection mass rates (tonnes per day)
+        q2: array-like
+            Water and oil extraction rates (m^3)
         T0 : float
             Initial value of solution, degC.
         P : Array-like
@@ -342,6 +356,9 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
             Dependent variable solution vector, degC.
 
     '''
+    if dt == 0:
+        return t0, T0
+        
     # Calculating number of interations required
     iterations = int(np.ceil((t1-t0)/dt))
 
@@ -351,7 +368,7 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
     for i in range(iterations):
         t[i+1] = t[i] + dt
 
-    # Creating empty array for Temerature at each time, with initial value
+    # Creating empty array for Temperature at each time, with initial value
     T = 0.*t
     T[0] = T0
 
@@ -421,12 +438,12 @@ def plot_models():
     Pf,_ = curve_fit(fit_pressure, t, Pi, [a,b])
     a = Pf[0]
     b = Pf[1]
-
+    
     # Using curvefit to find optimum b and initial mass values for temperautre LMP
     Tf,_ = curve_fit(fit_temp, t, Ti, [bt,M0])
     bt = Tf[0]
     M0 = Tf[1]
-    
+
     # Initialising parameter arrays
     pars_P = [a, b, P0]
     pars_T = [a, b, bt, P0, T0, M0]
@@ -484,6 +501,7 @@ def temp_prediction():
     # Calling the interpolation functions for q1 and q2 arrays
     q1_0 = np.full(300,0)
     
+    #creating q arrays to extrapolate for 2 full cycles at different rates (250000, 460000,1000000)
     q1_250 = np.full(60,250000)
     q1_250 = np.append(q1_250,np.full(90,0))
     q1_250 = np.append(q1_250,np.full(60,250000))
