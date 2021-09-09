@@ -71,9 +71,6 @@ def temp_ode_model(t, T, q1, P, a, b, bt, Pa, Ta, M0):
             Derivative of dependent variable with respect to independent variable, Kelvins/day
 
     '''
-    if M0 == 0 or a == 0:
-        return T
-
     # Checking direction of flow to determine temperature
     if P > Pa:
         Td = T
@@ -295,9 +292,6 @@ def solve_ode_pressure(f, t0, t1, dt, q1, q2, P0, pars):
         ODE is solved using the Improved Euler Method.
 
     '''
-    if dt == 0:
-        return t0, P0
-
     # Number of iterations needed
     iterations = int(np.ceil((t1-t0)/dt))
 
@@ -350,10 +344,7 @@ def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
         T : array-like
             Dependent variable solution vector, Kelvins.
 
-    '''
-    if dt == 0:
-        return t0, T0
-        
+    '''    
     # Calculating number of interations required
     iterations = int(np.ceil((t1-t0)/dt))
 
