@@ -217,8 +217,7 @@ def fit_pressure(t, a, b):
     q2 = interpolate_mass_sink(t)
 
     # Solving for pressure given a and b paramater values
-    _, P = solve_ode_pressure(pressure_ode_model, 0,
-                              221, 1, q1, q2, 1291760, [a, b, 1291760])
+    _, P = solve_ode_pressure(pressure_ode_model, 0, 221, 1, q1, q2, 1291760, [a,b,1291760])
 
     return P
 
@@ -254,12 +253,10 @@ def fit_temp(t, bt, M0):
     b = 0.02694718
 
     # Solving for pressure
-    _, P = solve_ode_pressure(pressure_ode_model, 0,
-                              221, 1, q1, q2, 1291760, [a, b, 1291760])
+    _, P = solve_ode_pressure(pressure_ode_model, 0, 221, 1, q1, q2, 1291760, [a,b,1291760])
 
     # Solving for temperature at given times to return
-    _, T = solve_ode_temp(temp_ode_model, 0, 221, 1, q1, q2, 453.848, P, [
-                          a, b, bt, 1291760, 453.848, M0])
+    _, T = solve_ode_temp(temp_ode_model, 0, 221, 1, q1, q2, 453.848, P, [a,b,bt,1291760,453.848,M0])
 
     return T
 
@@ -382,7 +379,7 @@ def solve_ode_temp(f, t0, t1, dt, q1, q2, T0, P, pars):
     return t, T
 
 
-def plot_models():
+def formulate_models():
     ''' Plot the two pressure and temperature LPMs over top of the observed data.
 
         Parameters:
@@ -405,7 +402,7 @@ def plot_models():
     # Changing working directory to data pathway
     os.chdir("data")
 
-    # Experimental data for pressure and temperature
+    # Loading experimental data for pressure and temperature
     data = load_data()
     tPe, Pe, tTe, Te = data[0], data[1], data[2], data[3]
 
@@ -452,8 +449,17 @@ def plot_models():
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
     tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, q2, T0, P, pars_T)
 
+    return t, tP, P, tPe, Pe, tT, T, tTe, Te
+
+
+def plot_models():
+
+    # Loading data from model formulation function
+    data = formulate_models()
+    tP, P, tPe, Pe, tT, T, tTe, Te = data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]
+
     plt.rcParams["figure.figsize"] = (9, 6)
-    f, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
+    _, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
     ax2 = ax1.twinx()  # Creating separate axis
 
     # Plotting our LMPs and the given data
@@ -479,17 +485,18 @@ def plot_models():
     else:
         plt.savefig('Pressure_Temp.png', dpi=300)
 
+    return
+
+
+def temp_forecast():
+
     # Creating data containing variables necessary for temperature prediction
-    temp_data = [tT, T, tTe, Te, T[-1], P[-1]]
+    data = formulate_models()
+    t, P, T, te, Te  = data[0], data[3], data[6], data[7], data[8], 
 
-    return temp_data
-
-
-def temp_prediction():
-
-    # Importing temperature data
-    temp_data = plot_models()
-    t, T, te, Te, T0, P0 = temp_data[0], temp_data[1], temp_data[2], temp_data[3], temp_data[4], temp_data[5]
+    # Setting initial temperature and pressure values
+    T0 = T[-1]
+    P0 = P[-1]
 
     # Allocating time arrays
     t0 = 221
@@ -498,10 +505,9 @@ def temp_prediction():
     iterations = int(np.ceil((t1-t0)/dt))
     tp = t0 + np.arange(iterations+1)*dt
 
-    # Calling the interpolation functions for q1 and q2 arrays
+    # Creating q1 arrays to interpolate steam injection for 2 full cycles at different rates (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
     q1_0 = np.full(300,0)
-    
-    #creating q arrays to extrapolate for 2 full cycles at different rates (250000, 460000,1000000)
+
     q1_250 = np.full(60,250000)
     q1_250 = np.append(q1_250,np.full(90,0))
     q1_250 = np.append(q1_250,np.full(60,250000))
@@ -517,6 +523,7 @@ def temp_prediction():
     q1_1000 = np.append(q1_1000,np.full(60,1000000))
     q1_1000 = np.append(q1_1000,np.full(90,0))
     
+    # Creating q2 arrays to interpolate oil/water extraction for 2 full cycles at different injection rates (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
     q2 = interpolate_mass_sink(t)
 
     q2_0 = np.full(300,0)
@@ -536,7 +543,7 @@ def temp_prediction():
     q2_1000 = np.append(q2_1000,np.full(60,0))
     q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
 
-    # Fitted parameters
+    # Setting fitted parameters from past data
     a = 0.16229278 
     b = 0.02694718
     bt = 8.54611944e-01 
@@ -594,4 +601,4 @@ def temp_prediction():
 
 
 if __name__ == "__main__":
-    temp_prediction()
+    temp_forecast()

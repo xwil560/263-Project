@@ -189,4 +189,4 @@ def temperature_benchmark():
 
 
 if __name__ == '__main__':
-    temperature_benchmark()
+    pressure_benchmark()
