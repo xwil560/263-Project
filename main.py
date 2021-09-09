@@ -551,11 +551,11 @@ def temp_prediction():
     # Plotting our LMPs and the given data
     a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit')
     b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
-    c, = ax1.plot(tlim, lim, 'k--', label='Temperature Limit')
+    c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
 
     d, = ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
     e, = ax1.plot(t250, T250-273.15, 'b-', label='250 tonnes/day')
-    f, = ax1.plot(t460, T460-273.15, 'k-', label='460 tonnes/day')
+    f, = ax1.plot(t460, T460-273.15, 'm-', label='460 tonnes/day')
     g, = ax1.plot(t1000, T1000-273.15, 'g-', label='1000 tonnes/day')
 
     # Drawing labels and legends
