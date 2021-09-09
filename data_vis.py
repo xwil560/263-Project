@@ -189,6 +189,8 @@ def exp3_plots():
     plt.show()
 
 if __name__ == "__main__":
+    
     pilot_plots()
-    exp2_plots()
-    exp3_plots()
+    #exp2_plots()
+    #exp3_plots()
+    

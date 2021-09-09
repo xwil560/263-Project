@@ -369,7 +369,7 @@ def solve_ode_temp(f, t0, t1, dt, q1, T0, P, pars):
 
 
 def formulate_models():
-    ''' Plot the two pressure and temperature LPMs over top of the observed data.
+    ''' Formulate the two pressure and temperature LPMs from the observed data.
 
         Parameters:
         -----------
@@ -377,15 +377,24 @@ def formulate_models():
 
         Returns:
         --------
-        none
-
-        Notes:
-        ------
-        This function called within if __name__ == "__main__":
-
-        It contains commands to read and plot the experimental data, run and 
-        plot the LPM for hard coded parameters, and then either display the 
-        plot to the screen or save it to the disk.
+        t : ndarray
+            times at which data is measured/interpolated, days
+        tP : ndarray
+            times at which pressure was solved at, days
+        P : ndarray
+            Pressure values solved at tP times, Pa
+        tPe : ndarray
+            times at which experiment pressure data was collected at, days
+        Pe : ndarray
+            Experiment Pressure values, Pa
+        tT : ndarray
+            times as which temperature was solved at, days
+        T : ndarray
+            Temperature values solved at tT times, Kelvins
+        tTe : ndarray
+            times at which experiment pressuer data was collected at, days
+        Te : ndarray
+            experiment Temerature values, Kelvins
 
     '''
     # Changing working directory to data pathway
@@ -446,6 +455,25 @@ def formulate_models():
 
 
 def plot_models():
+    ''' Plot the two pressure and temperature LPMs over top of the observed data.
+
+        Parameters:
+        -----------
+        none
+
+        Returns:
+        --------
+        none
+
+        Notes:
+        ------
+        This function called within if __name__ == "__main__":
+
+        It contains commands to read and plot the experimental data, run and 
+        plot the LPM for hard coded parameters, and then either display the 
+        plot to the screen or save it to the disk.
+
+    '''
 
     # Loading data from model formulation function
     data = formulate_models()
@@ -482,6 +510,25 @@ def plot_models():
 
 
 def temp_forecast():
+    ''' Plot our model prediction for temperature over the next 300 days using different injection rates
+
+        Parameters:
+        -----------
+        none
+
+        Returns:
+        --------
+        none
+
+        Notes:
+        ------
+        This function called within if __name__ == "__main__":
+
+        It contains commands to plot predictions of temerature change over time using four different injection rates,
+        and then display the plot to the screen.
+
+    '''
+
 
     # Creating data containing variables necessary for temperature prediction
     data = formulate_models()
@@ -594,8 +641,23 @@ def temp_forecast():
     return
 
 def uncertainty():
+    ''' Plot the final image of Temerature over time using four different injection rates, with uncertainty.
 
-        # Creating data containing variables necessary for temperature prediction
+        Parameters:
+        -----------
+        none
+
+        Returns:
+        --------
+        none
+
+        Notes:
+        ------
+        This function called within if __name__ == "__main__":
+
+    '''
+
+    # Creating data containing variables necessary for temperature prediction
     data = formulate_models()
     t, P, T, te, Te  = data[0], data[3], data[6], data[7], data[8], 
     Pa = 1291760
@@ -650,11 +712,13 @@ def uncertainty():
     q2_1000 = np.append(q2_1000,np.full(60,0))
     q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
 
+    #parameter values
     a = 0.16229278 
     b = 0.02694718
     bt = 8.54611944e-01 
     M0 = 4.45931451e+06
 
+    #calculating varience for each paramater
     var = 10
     avar = a/var
     bvar = b/var
