@@ -451,7 +451,15 @@ def formulate_models():
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
     tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars_T)
 
-    return t, tP, P, tPe, Pe, tT, T, tTe, Te
+    # Calculating misfits
+    Pmf = np.full(len(t),0)
+    Tmf = np.full(len(t),0)
+
+    for i in range(len(t)):
+        Pmf[i] = P[i] - Pi[i]
+        Tmf[i] = T[i] - Ti[i]
+        
+    return t, tP, P, tPe, Pe, tT, T, tTe, Te, Pmf, Tmf
 
 
 def plot_models():
@@ -477,10 +485,10 @@ def plot_models():
 
     # Loading data from model formulation function
     data = formulate_models()
-    tP, P, tPe, Pe, tT, T, tTe, Te = data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]
+    tP, P, tPe, Pe, tT, T, tTe, Te, Pmf, Tmf = data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10]
 
-    plt.rcParams["figure.figsize"] = (9, 6)
-    _, ax1 = plt.subplots(1, 1)  # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (15, 6)
+    _, (ax1, ax3, ax4) = plt.subplots(1, 3)  # Creating plot figure and axes
     ax2 = ax1.twinx()  # Creating separate axis
 
     # Plotting our LMPs and the given data
@@ -489,13 +497,26 @@ def plot_models():
     ax2.plot(tT, T-273.15, 'r-', label='Temperature Best Fit')
     ax2.plot(tTe, Te-273.15, 'r.', label='Data')
 
+    # Plotting misfits
+    lim = np.full(len(tT),0)
+    ax3.plot(tT, lim, 'k--')
+    ax4.plot(tP, lim, 'k--')
+    ax3.plot(tT, Tmf, 'rx', label='Temperature Misfit')
+    ax4.plot(tP, Pmf/1000, 'kx', label='Pressure Misfit')
+
     # Setting y limits for each axes, drawing labels and legends
     ax1.set_ylabel('Pressure (kPa)')
     ax2.set_ylabel('Temperature ($^{0}C$)')
+    ax3.set_ylabel('Temperature Misfit ($^{0}C$)')
+    ax4.set_ylabel('Pressure Misfit (kPa)')
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Pressure and Temperature Models')
     ax1.legend(loc='upper right')
     ax2.legend(loc='lower left')
+    ax3.set_title('Temperature Misfit')
+    ax4.set_title('Pressure Misfit')
+
+    plt.tight_layout()
 
     # Either show the plot to the screen or save a version of it to the disk
     os.chdir("../plots")
@@ -528,7 +549,6 @@ def temp_forecast():
         and then display the plot to the screen.
 
     '''
-
 
     # Creating data containing variables necessary for temperature prediction
     data = formulate_models()
