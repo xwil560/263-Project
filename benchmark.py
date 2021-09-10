@@ -117,7 +117,7 @@ def temperature_benchmark():
     # Plotting the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
     ax1.plot(ts, xsa, '-')
-    ax1.title.set_text('Temperature Benchmark 1')
+    ax1.title.set_text('Temperature Benchmark')
     ax1.set_ylabel("Temperature(degrees C)")
     ax1.set_xlabel("Time (days)")
 

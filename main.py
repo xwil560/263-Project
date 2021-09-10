@@ -633,8 +633,8 @@ def temp_forecast():
     first_legend = plt.legend(handles=[a,b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d,e,f,g], title="Forecast Models", loc='lower left')
-    ax = plt.gca().add_artist(first_legend)
-    ax = plt.gca().add_artist(second_legend)
+    plt.gca().add_artist(first_legend)
+    plt.gca().add_artist(second_legend)
 
     plt.show()
 
@@ -737,7 +737,7 @@ def uncertainty():
 
     i = 0    
 
-    while i < 1000:
+    while i < 200:
 
         pars_P = [a_norm[i], b_norm[i], Pa]
         pars_T = [a_norm[i], b_norm[i], bt_norm[i], Pa, Ta, M0_norm[i]]
@@ -762,12 +762,12 @@ def uncertainty():
         b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
         c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
 
-        d, = ax1.plot(tzero, Tzero-273.15, color="crimson", label='0 tonnes/day',linewidth=1, alpha=0.3)
-        e, = ax1.plot(t250, T250-273.15 ,color="springgreen", label='250 tonnes/day',linewidth=1, alpha=0.3)
-        f, = ax1.plot(t460, T460-273.15,color="royalblue", label='460 tonnes/day',linewidth=1, alpha=0.3)
-        g, = ax1.plot(t1000, T1000-273.15,color="darkviolet", label='1000 tonnes/day',linewidth=1, alpha=0.3)
+        d, = ax1.plot(tzero, Tzero-273.15, color="crimson", label='0 tonnes/day',linewidth=0.3, alpha=0.7)
+        e, = ax1.plot(t250, T250-273.15 ,color="springgreen", label='250 tonnes/day',linewidth=0.3, alpha=0.7)
+        f, = ax1.plot(t460, T460-273.15,color="royalblue", label='460 tonnes/day',linewidth=0.3, alpha=0.7)
+        g, = ax1.plot(t1000, T1000-273.15,color="darkviolet", label='1000 tonnes/day',linewidth=0.3, alpha=0.7)
 
-        i = i+1
+        i = i + 1
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
@@ -778,12 +778,14 @@ def uncertainty():
     first_legend = plt.legend(handles=[a,b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d,e,f,g], title="Forecast Models", loc='lower left')
-    ax = plt.gca().add_artist(first_legend)
-    ax = plt.gca().add_artist(second_legend)
+    plt.gca().add_artist(first_legend)
+    plt.gca().add_artist(second_legend)
 
     plt.show()
 
 if __name__ == "__main__":
-    uncertainty()
+    plot_models()
+    #temp_forecast()
+    #uncertainty()
 
     
