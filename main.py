@@ -740,26 +740,24 @@ def uncertainty():
     bt = 8.54611944e-01 
     M0 = 4.45931451e+06
 
-    # Calculating variance for each paramater
+    # Calculating variance for each parameter
     var = 10
-    avar = a/var
-    bvar = b/var
-    btvar = bt/var
-    M0var = M0/var
+    a_var = a/var
+    b_var = b/var
+    bt_var = bt/var
+    M0_var = M0/var
 
     # Generating normal distributions for parameters
-    a_norm = np.random.normal(a,avar,1000)
-    b_norm = np.random.normal(b,bvar,1000)
-    bt_norm = np.random.normal(bt,btvar,1000)
-    M0_norm = np.random.normal(M0,M0var,1000)
+    a_norm = np.random.normal(a,a_var,1000)
+    b_norm = np.random.normal(b,b_var,1000)
+    bt_norm = np.random.normal(bt,bt_var,1000)
+    M0_norm = np.random.normal(M0,M0_var,1000)
 
     # Creating plot figure and axes
     plt.rcParams["figure.figsize"] = (11, 7)
     f, ax1 = plt.subplots(1, 1) 
 
-    i = 0    
-
-    while i < 200:
+    for i in range(200):
 
         pars_P = [a_norm[i], b_norm[i], Pa]
         pars_T = [a_norm[i], b_norm[i], bt_norm[i], Pa, Ta, M0_norm[i]]
@@ -807,7 +805,7 @@ def uncertainty():
 
 if __name__ == "__main__":
     #plot_models()
-    temp_forecast()
-    #uncertainty()
+    #temp_forecast()
+    uncertainty()
 
     
