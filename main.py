@@ -73,12 +73,12 @@ def temp_ode_model(t, T, q1, P, a, b, bt, Pa, Ta, M0):
     '''
     # Checking direction of flow to determine temperature
     if P > Pa:
-        Td = T
+        Tp = T
     else:
-        Td = Ta
+        Tp = Ta
 
     # Calculating the derivative for temperature
-    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-Pa)*(Td-3*T) - bt*(T-Ta)
+    dTdt = (q1/M0)*(533.15-T) - (b/(a*M0))*(P-Pa)*(Tp-3*T) - bt*(T-Ta)
 
     return dTdt
 
@@ -614,7 +614,7 @@ def temp_forecast():
     plt.rcParams["figure.figsize"] = (11, 7)
     f, ax1 = plt.subplots(1, 1) 
 
-    # Plotting our LMPs and the given data
+    # Plotting our LPMs and the given data
     a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit')
     b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
     c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
@@ -629,7 +629,7 @@ def temp_forecast():
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Temperature Forecast')
 
-    # Create two separate legends for past and forecast data
+    # Creating two separate legends for past and forecast data
     first_legend = plt.legend(handles=[a,b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d,e,f,g], title="Forecast Models", loc='lower left')
@@ -712,32 +712,33 @@ def uncertainty():
     q2_1000 = np.append(q2_1000,np.full(60,0))
     q2_1000 = np.append(q2_1000,np.full(90,max(q2)*2))
 
-    #parameter values
+    # Parameter values
     a = 0.16229278 
     b = 0.02694718
     bt = 8.54611944e-01 
     M0 = 4.45931451e+06
 
-    #calculating varience for each paramater
+    # Calculating variance for each paramater
     var = 10
     avar = a/var
     bvar = b/var
     btvar = bt/var
     M0var = M0/var
 
-    # Generate normal distributions for parameters
+    # Generating normal distributions for parameters
     a_norm = np.random.normal(a,avar,1000)
     b_norm = np.random.normal(b,bvar,1000)
     bt_norm = np.random.normal(bt,btvar,1000)
     M0_norm = np.random.normal(M0,M0var,1000)
 
-    i = 0
-
+    # Creating plot figure and axes
     plt.rcParams["figure.figsize"] = (11, 7)
-    f, ax1 = plt.subplots(1, 1)
-    
+    f, ax1 = plt.subplots(1, 1) 
 
-    while i<1000:
+    i = 0    
+
+    while i < 1000:
+
         pars_P = [a_norm[i], b_norm[i], Pa]
         pars_T = [a_norm[i], b_norm[i], bt_norm[i], Pa, Ta, M0_norm[i]]
 
@@ -756,10 +757,7 @@ def uncertainty():
         tlim = np.concatenate((t,tp))
         lim = np.full(len(tlim),240)
 
-        # Creating plot figure and axes
-         
-
-        # Plotting our LMPs and the given data
+        # Plotting our LPMs and the given data
         a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit')
         b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
         c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
@@ -776,7 +774,7 @@ def uncertainty():
     ax1.set_xlabel('Time (days)')
     ax1.set_title('Temperature Forecast')
 
-    # Create two separate legends for past and forecast data
+    # Creating two separate legends for past and forecast data
     first_legend = plt.legend(handles=[a,b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d,e,f,g], title="Forecast Models", loc='lower left')

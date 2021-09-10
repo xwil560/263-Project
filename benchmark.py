@@ -16,7 +16,7 @@ def pressure_benchmark():
         None
     '''
 
-    # Initialise paremeters for the ode model
+    # Initialise parameters for the ode model
     p0 = 1.75
     a1 = -2
     b = 1/1.75
@@ -29,10 +29,9 @@ def pressure_benchmark():
     q1 = 0*t
     q1.fill(1)
     q2 = np.sin(t)
-    pars1 = [a1, b, p0]  # The ode model is dp/dt=P+2sin(t)-1
-    # solve the ode numerically
-    ts, xsn = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
+    pars1 = [a1, b, p0]  # The ode model is dp/dt = P + 2sin(t) - 1
+    # Solve the ode numerically
+    ts, xsn = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = 3.75*np.exp(-t)+np.sin(t)-np.cos(t)-1
 
@@ -104,15 +103,16 @@ def temperature_benchmark1():
     q1 = 0*t
     q1.fill(10)
     P = 25*q1
-    # The ode model is 65.815-0.1T
+    # The ode model is dT/dt = 65.815 - 0.1T
     pars2 = [a1, b, bt, p0, T0, M0]
     # solve the ode numerically
     ts, xsn = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars2)
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = 658.15-633.15*np.exp(-0.1*t)
 
-    # Subplot the 3 graphs
-    f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (15, 5)
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
     # Plotting the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
@@ -162,7 +162,7 @@ def temperature_benchmark2():
         -------
         None
     '''
-    # Initialise paremeters for the ode model
+    # Initialise parameters for the ode model
     p0 = 200
     a1 = 2
     b = 1
@@ -178,15 +178,16 @@ def temperature_benchmark2():
     q1 = 0*t
     q1.fill(10)
     P = 15*q1
-    # The ode model is 72.065-1.35P
+    # The ode model is dT/dt = 72.065 - 1.35T
     pars2 = [a1, b, bt, p0, T0, M0]
-    # solve the ode numerically
+    # Solve the ode numerically
     ts, xsn = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars2)
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = -28.3815*np.exp(-1.35*t)+53.3815
 
-    # Subplot the 3 graphs
-    f, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (15, 5)
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
     # Plotting the graph for comparing analytical and numerical solution
     ax1.plot(ts, xsn, '-x')
@@ -226,4 +227,6 @@ def temperature_benchmark2():
 
 
 if __name__ == '__main__':
+    #pressure_benchmark()
+    #temperature_benchmark1()
     temperature_benchmark2()
