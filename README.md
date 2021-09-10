@@ -21,7 +21,6 @@ We have used data from a pilot study in steam injection for bitumen extraction o
 For these functions to work correctly, ensure the '/data' folder is within the same directory as the main.py, data_vis.py, benchmark.py, and unit_test.py files. The data folder should contain five .txt files containing the relevant data, titled:
 
 - 'tr_oil.txt'
-- 'tr_p.txt'
 - 'tr_steam.txt'
 - 'tr_T.txt'
 - 'tr_water.txt'
