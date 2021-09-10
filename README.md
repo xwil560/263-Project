@@ -26,4 +26,4 @@ We have used data from a pilot study in steam injection for bitumen extraction o
   - 'tr_T.txt'
   - 'tr_water.txt'
 
-  Additionally, the data should be formatted with a single header, and two columns, the first containing the data, the second containing the time (days), seperated by a comma delimiter.
+  Additionally, the data should be formatted with a single header, and two columns, the first containing the time(days), the second containing the data, seperated by a comma delimiter.
