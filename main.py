@@ -443,6 +443,8 @@ def formulate_models():
     bt = Tf[0]
     M0 = Tf[1]
 
+    print(Pf, Tf)
+
     # Initialising parameter arrays
     pars_P = [a, b, Pa]
     pars_T = [a, b, bt, Pa, Ta, M0]
