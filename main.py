@@ -641,10 +641,10 @@ def temp_forecast():
     b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
     c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
 
-    d, = ax1.plot(tzero, Tzero-273.15, 'r-', label='0 tonnes/day')
-    e, = ax1.plot(t250, T250-273.15, 'b-', label='250 tonnes/day')
-    f, = ax1.plot(t460, T460-273.15, 'm-', label='460 tonnes/day')
-    g, = ax1.plot(t1000, T1000-273.15, 'g-', label='1000 tonnes/day')
+    d, = ax1.plot(tzero, Tzero-273.15, 'crimson', label='0 tonnes/day')
+    e, = ax1.plot(t250, T250-273.15, 'springgreen', label='250 tonnes/day')
+    f, = ax1.plot(t460, T460-273.15, 'royalblue', label='460 tonnes/day')
+    g, = ax1.plot(t1000, T1000-273.15, 'darkviolet', label='1000 tonnes/day')
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
@@ -806,8 +806,8 @@ def uncertainty():
     plt.show()
 
 if __name__ == "__main__":
-    plot_models()
-    #temp_forecast()
+    #plot_models()
+    temp_forecast()
     #uncertainty()
 
     
