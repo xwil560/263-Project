@@ -1,6 +1,6 @@
-# 263-Project
+# ENGSCI 263 Computational Mechanics Group Project
 
-263 Group Project
+Project 5 Group 15 - Thermal Recovery of Bitumen on the West Coast
 
 We have used data from a pilot study in steam injection for bitumen extraction on the West Coast of the South Island to model and forecast how the temperature and pressure of a control volume would likely behave in a continued thermal recovery project proposed by Todd Energy. Within this folder we have:
 
