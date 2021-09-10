@@ -201,7 +201,7 @@ def fit_pressure(t, a, b):
         Returns:
         --------
         P : array-like
-            pressure values of system at given times using these paramaters
+            pressure values of system at given times using these parameters
 
 
         Notes:
@@ -213,7 +213,7 @@ def fit_pressure(t, a, b):
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
-    # Solving for pressure given a and b paramater values
+    # Solving for pressure given a and b parameter values
     _, P = solve_ode_pressure(pressure_ode_model, 0, 221, 1, q1, q2, 1291760, [a,b,1291760])
 
     return P
@@ -234,7 +234,7 @@ def fit_temp(t, bt, M0):
         Returns:
         --------
         T : array-like
-            Temperature of system at times t using these paramaters.
+            Temperature of system at times t using these parameters.
 
         Notes:
         ------
@@ -245,7 +245,7 @@ def fit_temp(t, bt, M0):
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
-    # Paramater values found using best fit for pressure
+    # Parameter values found using best fit for pressure
     a = 0.16229278 
     b = 0.02694718
 
@@ -392,7 +392,7 @@ def formulate_models():
         T : ndarray
             Temperature values solved at tT times, Kelvins
         tTe : ndarray
-            times at which experiment pressuer data was collected at, days
+            times at which experiment pressure data was collected at, days
         Te : ndarray
             experiment Temerature values, Kelvins
 
@@ -438,18 +438,16 @@ def formulate_models():
     a = Pf[0]
     b = Pf[1]
     
-    # Using curvefit to find optimum b and initial mass values for temperautre LMP
+    # Using curvefit to find optimum b and initial mass values for temperature LPM
     Tf,_ = curve_fit(fit_temp, t, Ti, [bt,M0])
     bt = Tf[0]
     M0 = Tf[1]
-
-    print(Pf, Tf)
 
     # Initialising parameter arrays
     pars_P = [a, b, Pa]
     pars_T = [a, b, bt, Pa, Ta, M0]
 
-    # Final solve for temperature and pressure over time using best fit paramaters
+    # Final solve for temperature and pressure over time using best fit parameters
     tP, P = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, P0, pars_P)
     tT, T = solve_ode_temp(temp_ode_model, t0, t1, dt, q1, T0, P, pars_T)
 
@@ -493,7 +491,7 @@ def plot_models():
     _, (ax1, ax3, ax4) = plt.subplots(1, 3)  # Creating plot figure and axes
     ax2 = ax1.twinx()  # Creating separate axis
 
-    # Plotting our LMPs and the given data
+    # Plotting our LPMs and the given data
     ax1.plot(tP, P/1000, 'k-', label='Pressure Best Fit')
     ax1.plot(tPe, Pe/1000, 'k.', label='Data')
     ax2.plot(tT, T-273.15, 'r-', label='Temperature Best Fit')
