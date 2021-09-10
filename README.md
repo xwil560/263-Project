@@ -14,9 +14,9 @@ We have used data from a pilot study in steam injection for bitumen extraction o
 
 - main.py: This script contains all the function required to read data, solve odes, fit models, plot models, forecast future outcomes, and visualize uncertainty. To see each output, change the call in main to either:
 
-- 'plot_models()': To see a plot of the best fit temperature and pressure LPM models based on the past data provided.
-- 'temp_forecast()': To see a plot of the 300 day forecast that displays temperature best fit for past data as well as a future temperature prediction on the reservoir for 2 iterations of 4 proposed injection rates (i.e. 460 tonnes/day, 1000 tonnes/day, 250 tonnes/day & 0 tonnes/day).
-- 'uncertainty()': To see the plot above but with uncertainty illustrated.
+  - 'plot_models()': To see a plot of the best fit temperature and pressure LPM models based on the past data provided.
+  - 'temp_forecast()': To see a plot of the 300 day forecast that displays temperature best fit for past data as well as a future temperature prediction on the reservoir for 2 iterations of 4 proposed injection rates (i.e. 460 tonnes/day, 1000 tonnes/day, 250 tonnes/day & 0 tonnes/day).
+  - 'uncertainty()': To see the plot above but with uncertainty illustrated.
 
 For these functions to work correctly, ensure the '/data' folder is within the same directory as the main.py, data_vis.py, benchmark.py, and unit_test.py files. The data folder should contain five .txt files containing the relevant data, titled:
 
@@ -26,4 +26,4 @@ For these functions to work correctly, ensure the '/data' folder is within the s
 - 'tr_T.txt'
 - 'tr_water.txt'
 
-Additionally, the data should be formated with a single header, and two columns, the first containing the data, the second containing the time (days), seperated by a comma delimiter.
+Additionally, the data should be formatted with a single header, and two columns, the first containing the data, the second containing the time (days), seperated by a comma delimiter.
