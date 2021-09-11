@@ -20,10 +20,10 @@ We have used data from a pilot study in steam injection for bitumen extraction o
 
   For these functions to work correctly, ensure the '/data' folder is within the same directory as the main.py, data_vis.py, benchmark.py, and unit_test.py files. The data folder should contain five .txt files containing the relevant data, titled:
 
-  - 'tr_oil.txt'
-  - 'tr_p.txt'
-  - 'tr_steam.txt'
-  - 'tr_T.txt'
-  - 'tr_water.txt'
+  - 'tr_oil.txt' for production rate of oil in m^3/day
+  - 'tr_p.txt' for pessure of well in kPa
+  - 'tr_steam.txt' for injection rate of steam in tonnes/day
+  - 'tr_T.txt' for temperature of well in degrees celcius 
+  - 'tr_water.txt' for production rate of water in m^3/day
 
   Additionally, the data should be formatted with a single header, and two columns, the first containing the time(days), the second containing the data, seperated by a comma delimiter.
