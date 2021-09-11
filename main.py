@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 from scipy.optimize import curve_fit
-
+import scipy.stats as st
 
 def pressure_ode_model(t, P, q1, q2, a, b, Pa):
     ''' Return the derivative dP/dt at time, t(days), for given parameters.
@@ -755,6 +755,12 @@ def uncertainty():
     plt.rcParams["figure.figsize"] = (11, 7)
     f, ax1 = plt.subplots(1, 1) 
 
+    #creating arrays to store max values
+    TzeroMax = np.zeros(200)
+    T250Max = np.zeros(200)
+    T460Max = np.zeros(200)
+    T1000Max = np.zeros(200)
+
     for i in range(200):
 
         pars_P = [a_norm[i], b_norm[i], Pa]
@@ -771,6 +777,12 @@ def uncertainty():
         t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
         t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
 
+        #storing each max T values
+        TzeroMax[i] = np.max(Tzero)
+        T250Max[i] = np.max(T250)
+        T460Max[i] = np.max(T460)
+        T1000Max[i] = np.max(T1000)
+
         # Limit of 240 degrees for dissociation of contaminants
         tlim = np.concatenate((t,tp))
         lim = np.full(len(tlim),240)
@@ -786,6 +798,16 @@ def uncertainty():
         g, = ax1.plot(t1000, T1000-273.15,color="darkviolet", label='1000 tonnes/day',linewidth=0.3, alpha=0.7)
 
         i = i + 1
+
+    #finding conf.int for each set of Tmax data
+    TzeroConfint = st.t.interval(0.9, len(TzeroMax) - 1, np.mean(TzeroMax), st.sem(TzeroMax))
+    T250Confint = st.t.interval(0.9, len(T250Max) - 1, np.mean(T250Max), st.sem(T250Max))
+    T460Confint = st.t.interval(0.9, len(T460Max) - 1, np.mean(T460Max), st.sem(T460Max))
+    T1000Confint = st.t.interval(0.9, len(T1000Max) - 1, np.mean(T1000Max), st.sem(T1000Max))
+    print(TzeroConfint)
+    print(T250Confint)
+    print(T460Confint)
+    print(T1000Confint)
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
