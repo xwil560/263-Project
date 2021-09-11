@@ -804,10 +804,6 @@ def uncertainty():
     T250Confint = st.t.interval(0.9, len(T250Max) - 1, np.mean(T250Max), st.sem(T250Max))
     T460Confint = st.t.interval(0.9, len(T460Max) - 1, np.mean(T460Max), st.sem(T460Max))
     T1000Confint = st.t.interval(0.9, len(T1000Max) - 1, np.mean(T1000Max), st.sem(T1000Max))
-    print(TzeroConfint)
-    print(T250Confint)
-    print(T460Confint)
-    print(T1000Confint)
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
