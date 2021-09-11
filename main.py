@@ -585,7 +585,8 @@ def temp_forecast():
     q1_1000 = np.append(q1_1000,np.full(60,1000000))
     q1_1000 = np.append(q1_1000,np.full(90,0))
     
-    # Creating q2 arrays to interpolate oil/water extraction for 2 full cycles at different injection rates (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
+    # Creating q2 arrays to interpolate oil/water extraction for 2 full cycles at different injection rates
+    # (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
     q2 = interpolate_mass_sink(t)
 
     q2_0 = np.full(300,0)
@@ -694,7 +695,8 @@ def uncertainty():
     iterations = int(np.ceil((t1-t0)/dt))
     tp = t0 + np.arange(iterations+1)*dt
 
-    # Creating q1 arrays to interpolate steam injection for 2 full cycles at different rates (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
+    # Creating q1 arrays to interpolate steam injection for 2 full cycles at different rates
+    # (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
     q1_0 = np.full(300,0)
 
     q1_250 = np.full(60,250000)
@@ -712,7 +714,8 @@ def uncertainty():
     q1_1000 = np.append(q1_1000,np.full(60,1000000))
     q1_1000 = np.append(q1_1000,np.full(90,0))
     
-    # Creating q2 arrays to interpolate oil/water extraction for 2 full cycles at different injection rates (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
+    # Creating q2 arrays to interpolate oil/water extraction for 2 full cycles at different injection rates
+    # (0 tonnes/day, 250 tonnes/day, 460 tonnes/day, 1000 tonnes/day)
     q2 = interpolate_mass_sink(t)
 
     q2_0 = np.full(300,0)
@@ -738,6 +741,18 @@ def uncertainty():
     bt = 8.54611944e-01 
     M0 = 4.45931451e+06
 
+    # Creating plot figure and axes
+    plt.rcParams["figure.figsize"] = (11, 7)
+    f, ax1 = plt.subplots(1, 1) 
+
+    #creating arrays to store max values
+    # max lines = 1000
+    lines = 200
+    TzeroMax = np.zeros(lines)
+    T250Max = np.zeros(lines)
+    T460Max = np.zeros(lines)
+    T1000Max = np.zeros(lines)
+    
     # Calculating variance for each parameter
     var = 10
     a_var = a/var
@@ -746,22 +761,17 @@ def uncertainty():
     M0_var = M0/var
 
     # Generating normal distributions for parameters
-    a_norm = np.random.normal(a,a_var,1000)
-    b_norm = np.random.normal(b,b_var,1000)
-    bt_norm = np.random.normal(bt,bt_var,1000)
-    M0_norm = np.random.normal(M0,M0_var,1000)
+    a_norm = np.random.normal(a,a_var,lines)
+    b_norm = np.random.normal(b,b_var,lines)
+    bt_norm = np.random.normal(bt,bt_var,lines)
+    M0_norm = np.random.normal(M0,M0_var,lines)
 
-    # Creating plot figure and axes
-    plt.rcParams["figure.figsize"] = (11, 7)
-    f, ax1 = plt.subplots(1, 1) 
+    # for historical uncertainty
+    q1 = interpolate_mass_source(t)
+    q2 = interpolate_mass_sink(t)
 
-    #creating arrays to store max values
-    TzeroMax = np.zeros(200)
-    T250Max = np.zeros(200)
-    T460Max = np.zeros(200)
-    T1000Max = np.zeros(200)
 
-    for i in range(200):
+    for i in range(lines):
 
         pars_P = [a_norm[i], b_norm[i], Pa]
         pars_T = [a_norm[i], b_norm[i], bt_norm[i], Pa, Ta, M0_norm[i]]
@@ -787,8 +797,11 @@ def uncertainty():
         tlim = np.concatenate((t,tp))
         lim = np.full(len(tlim),240)
 
+        t, P = solve_ode_pressure(pressure_ode_model, 0, 221, dt, q1, q2, P0, pars_P)
+        t, T = solve_ode_temp(temp_ode_model, 0, 221, dt, q1, T0, P, pars_T)
+
         # Plotting our LPMs and the given data
-        a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit')
+        a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit',linewidth=0.3, alpha=0.7)
         b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
         c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
 
@@ -796,8 +809,6 @@ def uncertainty():
         e, = ax1.plot(t250, T250-273.15 ,color="springgreen", label='250 tonnes/day',linewidth=0.3, alpha=0.7)
         f, = ax1.plot(t460, T460-273.15,color="royalblue", label='460 tonnes/day',linewidth=0.3, alpha=0.7)
         g, = ax1.plot(t1000, T1000-273.15,color="darkviolet", label='1000 tonnes/day',linewidth=0.3, alpha=0.7)
-
-        i = i + 1
 
     #finding conf.int for each set of Tmax data
     TzeroConfint = st.t.interval(0.9, len(TzeroMax) - 1, np.mean(TzeroMax), st.sem(TzeroMax))
@@ -820,8 +831,17 @@ def uncertainty():
     plt.show()
 
 if __name__ == "__main__":
+    '''
+    Only run one of these at a time. May just be me but it
+    breaks the code when I try run several at a time.
+    Probably due to stack problems and functions not relinquishing
+    control so the rest can use it. formuale_models() might be the issue.
+
+    '''
     #plot_models()
+
     #temp_forecast()
+    
     uncertainty()
 
     
