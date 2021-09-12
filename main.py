@@ -463,7 +463,7 @@ def formulate_models():
 
 
 def plot_models():
-    ''' Plot the two pressure and temperature LPMs over top of the observed data.
+    ''' Plots the two pressure and temperature LPMs over the top of the observed data.
 
         Parameters:
         -----------
@@ -531,7 +531,7 @@ def plot_models():
 
 
 def temp_forecast():
-    ''' Plot our model prediction for temperature over the next 300 days using different injection rates
+    ''' Plots our model prediction for temperature over time for the next 300 days using different injection rates.
 
         Parameters:
         -----------
@@ -546,7 +546,7 @@ def temp_forecast():
         This function called within if __name__ == "__main__":
 
         It contains commands to plot predictions of temerature change over time using four different injection rates,
-        and then display the plot to the screen.
+        and then displays the plot to the screen.
 
     '''
 
@@ -662,7 +662,7 @@ def temp_forecast():
     return
 
 def uncertainty():
-    ''' Plot the final image of Temerature over time using four different injection rates, with uncertainty.
+    ''' Plots the final prediction of temerature over time using four different injection rates, with uncertainty.
 
         Parameters:
         -----------
@@ -835,7 +835,7 @@ if __name__ == "__main__":
     Only run one of these at a time. May just be me but it
     breaks the code when I try run several at a time.
     Probably due to stack problems and functions not relinquishing
-    control so the rest can use it. formuale_models() might be the issue.
+    control so the rest can use it. formualate_models() might be the issue.
 
     '''
     #plot_models()
