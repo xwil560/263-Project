@@ -16,6 +16,7 @@ We have used data from a pilot study in steam injection for bitumen extraction o
 
 - main.py: This script when run will call the correponding functions in LMP.py to display all our relevant plots, including the final model fit with misfit, benchmarking, forecast and uncertainty. Run to display these.
 
+  - 'pilot_plots()': To see a plot for the time series of our provided data
   - 'plot_models()': To see a plot of the best fit temperature and pressure LPM models based on the past data provided.
   - 'temp_forecast()': To see a plot of the 300 day forecast that displays temperature best fit for past data as well as a future temperature prediction on the reservoir for 2 iterations of 4 proposed injection rates (i.e. 460 tonnes/day, 1000 tonnes/day, 250 tonnes/day & 0 tonnes/day).
   - 'uncertainty()': To see the plot above but with uncertainty illustrated.
