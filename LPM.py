@@ -510,7 +510,7 @@ def plot_models():
     ax3.plot(tT, Tmf, 'rx', label='Temperature Misfit')
     ax4.plot(tP, Pmf/1000, 'kx', label='Pressure Misfit')
 
-    # Setting y limits for each axes, drawing labels and legends
+    # Labelling axis and legends
     ax1.set_ylabel('Pressure (kPa)')
     ax2.set_ylabel('Temperature ($^{0}C$)')
     ax3.set_ylabel('Temperature Misfit ($^{0}C$)')
@@ -626,23 +626,15 @@ def temp_forecast():
     pars_T = [a, b, bt, Pa, Ta, M0]
 
     # Forecasts for different levels of steam injection
-    _, Pzero = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
-    _, P250 = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
-    _, P500 = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1_460, q2_460, P0, pars_P)
-    _, P1000 = solve_ode_pressure(
-        pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
+    _, Pzero = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
+    _, P250 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
+    _, P500 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_460, q2_460, P0, pars_P)
+    _, P1000 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
 
-    tzero, Tzero = solve_ode_temp(
-        temp_ode_model, t0, t1, dt, q1_0, T0, Pzero, pars_T)
-    t250, T250 = solve_ode_temp(
-        temp_ode_model, t0, t1, dt, q1_250, T0, P250, pars_T)
-    t460, T460 = solve_ode_temp(
-        temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
-    t1000, T1000 = solve_ode_temp(
-        temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
+    tzero, Tzero = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_0, T0, Pzero, pars_T)
+    t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, T0, P250, pars_T)
+    t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
+    t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
 
     # Limit of 240 degrees for dissociation of contaminants
     tlim = np.concatenate((t, tp))
@@ -668,8 +660,7 @@ def temp_forecast():
     ax1.set_title('Temperature Forecast')
 
     # Creating two separate legends for past and forecast data
-    first_legend = plt.legend(
-        handles=[a, b], title="Historical Model", loc='upper left')
+    first_legend = plt.legend(handles=[a, b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d, e, f, g], title="Forecast Models", loc='lower left')
     plt.gca().add_artist(first_legend)
@@ -764,13 +755,13 @@ def uncertainty():
     plt.rcParams["figure.figsize"] = (11, 7)
     f, ax1 = plt.subplots(1, 1)
 
-    # creating arrays to store max values
-    # max lines = 1000
+    # Creating arrays to store max values
+    # Max lines = 1000
     lines = 200
-    TzeroMax = np.zeros(lines)
-    T250Max = np.zeros(lines)
-    T460Max = np.zeros(lines)
-    T1000Max = np.zeros(lines)
+    Tzero_max = np.zeros(lines)
+    T250_max = np.zeros(lines)
+    T460_max = np.zeros(lines)
+    T1000_max = np.zeros(lines)
 
     # Calculating variance for each parameter
     var = 10
@@ -785,7 +776,7 @@ def uncertainty():
     bt_norm = np.random.normal(bt, bt_var, lines)
     M0_norm = np.random.normal(M0, M0_var, lines)
 
-    # for historical uncertainty
+    # For historical uncertainty
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
@@ -795,29 +786,21 @@ def uncertainty():
         pars_T = [a_norm[i], b_norm[i], bt_norm[i], Pa, Ta, M0_norm[i]]
 
         # Forecasts for different levels of steam injection
-        _, Pzero = solve_ode_pressure(
-            pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
-        _, P250 = solve_ode_pressure(
-            pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
-        _, P500 = solve_ode_pressure(
-            pressure_ode_model, t0, t1, dt, q1_460, q2_460, P0, pars_P)
-        _, P1000 = solve_ode_pressure(
-            pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
+        _, Pzero = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_0, q2_0, P0, pars_P)
+        _, P250 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_250, q2_250, P0, pars_P)
+        _, P500 = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1_460, q2_460, P0, pars_P)
+        _, P1000 = solve_ode_pressure( pressure_ode_model, t0, t1, dt, q1_1000, q2_1000, P0, pars_P)
 
-        tzero, Tzero = solve_ode_temp(
-            temp_ode_model, t0, t1, dt, q1_0, T0, Pzero, pars_T)
-        t250, T250 = solve_ode_temp(
-            temp_ode_model, t0, t1, dt, q1_250, T0, P250, pars_T)
-        t460, T460 = solve_ode_temp(
-            temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
-        t1000, T1000 = solve_ode_temp(
-            temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
+        tzero, Tzero = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_0, T0, Pzero, pars_T)
+        t250, T250 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_250, T0, P250, pars_T)
+        t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
+        t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
 
-        # storing each max T values
-        TzeroMax[i] = np.max(Tzero)
-        T250Max[i] = np.max(T250)
-        T460Max[i] = np.max(T460)
-        T1000Max[i] = np.max(T1000)
+        # Storing each max T values
+        Tzero_max[i] = np.max(Tzero)
+        T250_max[i] = np.max(T250)
+        T460_max[i] = np.max(T460)
+        T1000_max[i] = np.max(T1000)
 
         # Limit of 240 degrees for dissociation of contaminants
         tlim = np.concatenate((t, tp))
@@ -828,30 +811,20 @@ def uncertainty():
         t, T = solve_ode_temp(temp_ode_model, 0, 221, dt, q1, T0, P, pars_T)
 
         # Plotting our LPMs and the given data
-        a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit',
-                      linewidth=0.3, alpha=0.7)
+        a, = ax1.plot(t, T-273.15, 'k-', label='Best Fit', linewidth=0.3, alpha=0.7)
         b, = ax1.plot(te, Te-273.15, 'k.', label='Data')
-        c, = ax1.plot(tlim, lim, 'k--',
-                      label='Dissociation of Toxic Contaminants')
+        c, = ax1.plot(tlim, lim, 'k--', label='Dissociation of Toxic Contaminants')
 
-        d, = ax1.plot(tzero, Tzero-273.15, color="crimson",
-                      label='0 tonnes/day', linewidth=0.3, alpha=0.7)
-        e, = ax1.plot(t250, T250-273.15, color="springgreen",
-                      label='250 tonnes/day', linewidth=0.3, alpha=0.7)
-        f, = ax1.plot(t460, T460-273.15, color="royalblue",
-                      label='460 tonnes/day', linewidth=0.3, alpha=0.7)
-        g, = ax1.plot(t1000, T1000-273.15, color="darkviolet",
-                      label='1000 tonnes/day', linewidth=0.3, alpha=0.7)
+        d, = ax1.plot(tzero, Tzero-273.15, color="crimson", label='0 tonnes/day', linewidth=0.3, alpha=0.7)
+        e, = ax1.plot(t250, T250-273.15, color="springgreen", label='250 tonnes/day', linewidth=0.3, alpha=0.7)
+        f, = ax1.plot(t460, T460-273.15, color="royalblue", label='460 tonnes/day', linewidth=0.3, alpha=0.7)
+        g, = ax1.plot(t1000, T1000-273.15, color="darkviolet", label='1000 tonnes/day', linewidth=0.3, alpha=0.7)
 
-    # finding conf.int for each set of Tmax data
-    TzeroConfint = st.t.interval(
-        0.9, len(TzeroMax) - 1, np.mean(TzeroMax), st.sem(TzeroMax))
-    T250Confint = st.t.interval(
-        0.9, len(T250Max) - 1, np.mean(T250Max), st.sem(T250Max))
-    T460Confint = st.t.interval(
-        0.9, len(T460Max) - 1, np.mean(T460Max), st.sem(T460Max))
-    T1000Confint = st.t.interval(
-        0.9, len(T1000Max) - 1, np.mean(T1000Max), st.sem(T1000Max))
+    # Finding confidence intervals for each set of Tmax data
+    Tzero_confint = st.t.interval(0.9, len(Tzero_max) - 1, np.mean(Tzero_max), st.sem(Tzero_max))
+    T250_confint = st.t.interval(0.9, len(T250_max) - 1, np.mean(T250_max), st.sem(T250_max))
+    T460_confint = st.t.interval(0.9, len(T460_max) - 1, np.mean(T460_max), st.sem(T460_max))
+    T1000_confint = st.t.interval(0.9, len(T1000_max) - 1, np.mean(T1000_max), st.sem(T1000_max))
 
     # Drawing labels and legends
     ax1.set_ylabel('Temperature ($^{0}C$)')
@@ -859,8 +832,7 @@ def uncertainty():
     ax1.set_title('Temperature Forecast')
 
     # Creating two separate legends for past and forecast data
-    first_legend = plt.legend(
-        handles=[a, b], title="Historical Model", loc='upper left')
+    first_legend = plt.legend(handles=[a, b], title="Historical Model", loc='upper left')
     second_legend = plt.legend(handles=[c], loc='upper right')
     plt.legend(handles=[d, e, f, g], title="Forecast Models", loc='lower left')
     plt.gca().add_artist(first_legend)
