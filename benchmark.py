@@ -1,7 +1,7 @@
 # imports
 import numpy as np
 from matplotlib import pyplot as plt
-from main import *
+from LPM import *
 
 
 def pressure_benchmark():
@@ -31,7 +31,8 @@ def pressure_benchmark():
     q2 = np.sin(t)
     pars1 = [a1, b, p0]  # The ode model is dp/dt = P + 2sin(t) - 1
     # Solve the ode numerically
-    ts, xsn = solve_ode_pressure(pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
+    ts, xsn = solve_ode_pressure(
+        pressure_ode_model, t0, t1, dt, q1, q2, p0, pars1)
     # Solve the ode with the given parameter analytically with Wolfram Alpha
     xsa = 3.75*np.exp(-t)+np.sin(t)-np.cos(t)-1
 
@@ -152,5 +153,5 @@ def temperature_benchmark():
 
 
 if __name__ == '__main__':
-    #pressure_benchmark()
+    # pressure_benchmark()
     temperature_benchmark()
