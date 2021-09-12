@@ -745,8 +745,7 @@ def uncertainty():
     plt.rcParams["figure.figsize"] = (11, 7)
     f, ax1 = plt.subplots(1, 1) 
 
-    #creating arrays to store max values
-    # max lines = 1000
+    # Creating arrays to store max values, max lines = 1000
     lines = 200
     TzeroMax = np.zeros(lines)
     T250Max = np.zeros(lines)
@@ -766,7 +765,7 @@ def uncertainty():
     bt_norm = np.random.normal(bt,bt_var,lines)
     M0_norm = np.random.normal(M0,M0_var,lines)
 
-    # for historical uncertainty
+    # For historical uncertainty
     q1 = interpolate_mass_source(t)
     q2 = interpolate_mass_sink(t)
 
@@ -787,7 +786,7 @@ def uncertainty():
         t460, T460 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_460, T0, P500, pars_T)
         t1000, T1000 = solve_ode_temp(temp_ode_model, t0, t1, dt, q1_1000, T0, P1000, pars_T)
 
-        #storing each max T values
+        # Storing each max T values
         TzeroMax[i] = np.max(Tzero)
         T250Max[i] = np.max(T250)
         T460Max[i] = np.max(T460)
@@ -810,7 +809,7 @@ def uncertainty():
         f, = ax1.plot(t460, T460-273.15,color="royalblue", label='460 tonnes/day',linewidth=0.3, alpha=0.7)
         g, = ax1.plot(t1000, T1000-273.15,color="darkviolet", label='1000 tonnes/day',linewidth=0.3, alpha=0.7)
 
-    #finding conf.int for each set of Tmax data
+    # Finding conf.int for each set of Tmax data
     TzeroConfint = st.t.interval(0.9, len(TzeroMax) - 1, np.mean(TzeroMax), st.sem(TzeroMax))
     T250Confint = st.t.interval(0.9, len(T250Max) - 1, np.mean(T250Max), st.sem(T250Max))
     T460Confint = st.t.interval(0.9, len(T460Max) - 1, np.mean(T460Max), st.sem(T460Max))
@@ -839,9 +838,7 @@ if __name__ == "__main__":
 
     '''
     #plot_models()
-
     #temp_forecast()
-    
     uncertainty()
 
     
