@@ -14,12 +14,12 @@ We have used data from a pilot study in steam injection for bitumen extraction o
 
 - LPM.py: This script contains all the function required to read data, solve odes, fit models, plot models, forecast future outcomes, and visualize uncertainty. To see each output, change the call in main to either:
 
-- main.py: This script when run will call the correponding functions in LMP.py to display all our relevant plots, including the final model fit with misfit, benchmarking, forecast and uncertainty. Run to display these.
+- main.py: This script when run will call the correponding functions in LMP.py to display all our relevant plots, including the final model fit with misfit, benchmarking, forecast and uncertainty. The plots is calls are:
 
-  - 'pilot_plots()': To see a plot for the time series of our provided data
-  - 'plot_models()': To see a plot of the best fit temperature and pressure LPM models based on the past data provided.
-  - 'temp_forecast()': To see a plot of the 300 day forecast that displays temperature best fit for past data as well as a future temperature prediction on the reservoir for 2 iterations of 4 proposed injection rates (i.e. 460 tonnes/day, 1000 tonnes/day, 250 tonnes/day & 0 tonnes/day).
-  - 'uncertainty()': To see the plot above but with uncertainty illustrated.
+  - 'pilot_plots()': a plot for the time series of our provided data
+  - 'plot_models()': a plot of the best fit temperature and pressure LPM models based on the past data provided.
+  - 'temp_forecast()': a plot of the 300 day forecast that displays temperature best fit for past data as well as a future temperature prediction on the reservoir for 2 iterations of 4 proposed injection rates (i.e. 460 tonnes/day, 1000 tonnes/day, 250 tonnes/day & 0 tonnes/day).
+  - 'uncertainty()': the plot above but with uncertainty illustrated.
 
   For these functions to work correctly, ensure the '/data' folder is within the same directory as the main.py, data_vis.py, benchmark.py, and unit_test.py files. The data folder should contain five .txt files containing the relevant data, titled:
 
